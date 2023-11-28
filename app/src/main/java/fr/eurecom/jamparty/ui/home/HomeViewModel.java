@@ -6,14 +6,13 @@ import androidx.lifecycle.ViewModel;
 
 public class HomeViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    private final MutableLiveData<Boolean> inRoom = new MutableLiveData<>();
 
     public HomeViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        inRoom.setValue(false);
     }
 
-    public LiveData<String> getText() {
-        return mText;
-    }
+    public LiveData<Boolean> getInRoom() {return inRoom; }
+
+    public void setInRoom(boolean val){ this.inRoom.postValue(val);}
 }

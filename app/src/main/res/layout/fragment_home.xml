@@ -33,6 +33,7 @@
         </ListView>
 
         <LinearLayout
+            android:id="@+id/playerArea"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -64,8 +65,8 @@
                     android:id="@+id/playButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:elevation="10dp"
                     android:background="@android:color/transparent"
+                    android:elevation="10dp"
                     android:src="@drawable/play_button" />
 
                 <ImageButton
@@ -77,6 +78,16 @@
                     android:src="@drawable/secondary_button" />
             </LinearLayout>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonRoom"
+            android:layout_width="42dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="+"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
