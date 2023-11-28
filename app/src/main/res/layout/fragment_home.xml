@@ -52,25 +52,28 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/backButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="-10dp"
+                    android:layout_marginEnd="-10dp"
+                    android:background="@android:color/transparent"
                     android:src="@drawable/secondary_button" />
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/playButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:elevation="10dp"
+                    android:background="@android:color/transparent"
                     android:src="@drawable/play_button" />
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/nextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="-10dp"
+                    android:background="@android:color/transparent"
                     android:src="@drawable/secondary_button" />
             </LinearLayout>
         </LinearLayout>
