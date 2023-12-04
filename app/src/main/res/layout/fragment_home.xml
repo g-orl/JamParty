@@ -17,6 +17,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:id="@+id/textRoomName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RoomName"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
         <EditText
             android:id="@+id/editTextText"
             android:layout_width="match_parent"
@@ -28,7 +36,7 @@
 
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="321dp">
+            android:layout_height="194dp">
 
         </ListView>
 

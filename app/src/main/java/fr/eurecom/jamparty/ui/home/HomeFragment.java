@@ -34,13 +34,17 @@ public class HomeFragment extends Fragment {
         binding.buttonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TEST: DialogFragment
                 new CreateFragment().show(getChildFragmentManager(), CreateFragment.TAG);
-                //homeViewModel.setInRoom(true);
             }
         });
 
-
+        binding.buttonJoin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                homeViewModel.setInRoom(true);
+                homeViewModel.setRoomName("Room1");
+            }
+        });
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +73,14 @@ public class HomeFragment extends Fragment {
                 binding.playerArea.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
                 binding.buttonCreate.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
                 binding.buttonJoin.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
+                binding.textRoomName.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        homeViewModel.getRoomName().observe(this.getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                binding.textRoomName.setText(s);
             }
         });
 
