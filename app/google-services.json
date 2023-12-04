@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054573627264",
+    "project_id": "jamparty-c5fc6",
+    "storage_bucket": "jamparty-c5fc6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054573627264:android:debfd2f4b49578ec2a2365",
+        "android_client_info": {
+          "package_name": "fr.eurecom.jamparty"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVLkjgBWEZik5qHFI9mFchScmSkHslzZI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
