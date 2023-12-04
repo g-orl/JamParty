@@ -4,9 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,12 +13,11 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
+import fr.eurecom.jamparty.ui.createroom.CreateFragment;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-
-    private Boolean inRoom = true;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -37,7 +34,9 @@ public class HomeFragment extends Fragment {
         binding.buttonRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                homeViewModel.setInRoom(true);
+                // TEST: DialogFragment
+                new CreateFragment().show(getChildFragmentManager(), CreateFragment.TAG);
+                //homeViewModel.setInRoom(true);
             }
         });
 
