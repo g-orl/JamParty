@@ -31,7 +31,7 @@ public class HomeFragment extends Fragment {
         ImageButton backButton = binding.backButton;
         ImageButton nextButton = binding.nextButton;
 
-        binding.buttonRoom.setOnClickListener(new View.OnClickListener() {
+        binding.buttonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TEST: DialogFragment
@@ -67,7 +67,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChanged(Boolean aBoolean) {
                 binding.playerArea.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
-                binding.buttonRoom.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
+                binding.buttonCreate.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
+                binding.buttonJoin.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
             }
         });
 
