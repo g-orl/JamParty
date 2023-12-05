@@ -12,8 +12,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
-import fr.eurecom.jamparty.ui.createroom.CreateFragment;
+import fr.eurecom.jamparty.ui.fragments.CreateFragment;
+import fr.eurecom.jamparty.ui.fragments.JoinFragment;
 
 public class HomeFragment extends Fragment {
 
@@ -41,8 +43,11 @@ public class HomeFragment extends Fragment {
         binding.buttonJoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                homeViewModel.setInRoom(true);
-                homeViewModel.setRoomName("Room1");
+//                homeViewModel.setInRoom(true);
+//                homeViewModel.setRoomName("Room1");
+                if (((MainActivity)getActivity()).getLocation()!=null){
+                    new JoinFragment().show(getChildFragmentManager(), JoinFragment.TAG);
+                }
             }
         });
 

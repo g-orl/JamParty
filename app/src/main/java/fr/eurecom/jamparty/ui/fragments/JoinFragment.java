@@ -31,7 +31,9 @@ import java.util.ArrayList;
 public class JoinFragment extends DialogFragment {
     private Location location;
     private FirebaseDatabase database;
-    public static final double MAX_DIST_IN_METERS = 100;
+    public static final double MAX_DIST_IN_METERS = 1000;
+
+    public static String TAG = "JoinRoomDialog";
 
 
     public JoinFragment() {
