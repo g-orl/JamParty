@@ -12,16 +12,23 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.ui.fragments.JoinFragment;
+import fr.eurecom.jamparty.ui.home.HomeViewModel;
+
 public class RoomAdapter extends ArrayAdapter {
 
-    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts) {
+    private JoinFragment caller;
+
+    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts, JoinFragment caller) {
         super(context, 0, contacts);
+        this.caller = caller;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -36,7 +43,13 @@ public class RoomAdapter extends ArrayAdapter {
 
         joinBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { }
+            public void onClick(View v) {
+                // TODO integration backend
+                // MOCKED send name to MainActivity
+                caller.getHomeViewModel().setRoomName(nameTxt.getText().toString());
+                caller.getHomeViewModel().setInRoom(true);
+                caller.dismiss();
+            }
         });
         return convertView;
     }

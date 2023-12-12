@@ -108,10 +108,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return location;
     }
 
+    /*
     public void spawnJoin(View v) {
         if(location == null)
             return;
         JoinFragment floatingFragment = new JoinFragment();
         floatingFragment.show(getSupportFragmentManager(), "YourFloatingFragmentTag");
     }
+    */
 }

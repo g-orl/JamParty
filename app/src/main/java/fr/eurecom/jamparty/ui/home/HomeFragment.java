@@ -46,7 +46,7 @@ public class HomeFragment extends Fragment {
 //                homeViewModel.setInRoom(true);
 //                homeViewModel.setRoomName("Room1");
                 if (((MainActivity)getActivity()).getLocation()!=null){
-                    new JoinFragment().show(getChildFragmentManager(), JoinFragment.TAG);
+                    new JoinFragment(homeViewModel).show(getChildFragmentManager(), JoinFragment.TAG);
                 }
             }
         });
