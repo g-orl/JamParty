@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -32,6 +33,15 @@ public class HomeFragment extends Fragment {
         ImageButton playButton = binding.playButton;
         ImageButton backButton = binding.backButton;
         ImageButton nextButton = binding.nextButton;
+        Button exitButton = binding.buttonExit;
+
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                homeViewModel.setRoomName("");
+                homeViewModel.setInRoom(false);
+            }
+        });
 
         binding.buttonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +56,7 @@ public class HomeFragment extends Fragment {
 //                homeViewModel.setInRoom(true);
 //                homeViewModel.setRoomName("Room1");
                 if (((MainActivity)getActivity()).getLocation()!=null){
-                    new JoinFragment().show(getChildFragmentManager(), JoinFragment.TAG);
+                    new JoinFragment(homeViewModel).show(getChildFragmentManager(), JoinFragment.TAG);
                 }
             }
         });
@@ -75,6 +85,7 @@ public class HomeFragment extends Fragment {
         homeViewModel.getInRoom().observe(this.getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
+                binding.buttonExit.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
                 binding.playerArea.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
                 binding.buttonCreate.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
                 binding.buttonJoin.setVisibility(aBoolean ? View.GONE : View.VISIBLE);

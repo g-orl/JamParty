@@ -143,4 +143,13 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
+  
+    /*
+    public void spawnJoin(View v) {
+        if(location == null)
+            return;
+        JoinFragment floatingFragment = new JoinFragment();
+        floatingFragment.show(getSupportFragmentManager(), "YourFloatingFragmentTag");
+    }
+    */
 }

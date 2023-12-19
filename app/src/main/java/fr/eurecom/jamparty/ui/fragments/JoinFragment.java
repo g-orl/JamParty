@@ -5,6 +5,7 @@ import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.Room;
 import fr.eurecom.jamparty.RoomAdapter;
 import fr.eurecom.jamparty.User;
+import fr.eurecom.jamparty.ui.home.HomeViewModel;
 
 import android.app.Activity;
 import android.location.Location;
@@ -35,9 +36,15 @@ public class JoinFragment extends DialogFragment {
 
     public static String TAG = "JoinRoomDialog";
 
+    private HomeViewModel homeViewModel;
 
-    public JoinFragment() {
+    public JoinFragment(HomeViewModel homeViewModel) {
         super(R.layout.fragment_join);
+        this.homeViewModel = homeViewModel;
+    }
+
+    public HomeViewModel getHomeViewModel() {
+        return homeViewModel;
     }
 
     @Override
@@ -65,7 +72,7 @@ public class JoinFragment extends DialogFragment {
                 .startAt(latitude - 0.1)
                 .endAt(latitude + 0.1);
         final ArrayList<Room> roomsArray = new ArrayList<>();
-        final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray);
+        final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray, this);
         final ListView roomsList = view.findViewById(R.id.roomsList);
         roomsList.setAdapter(adapter);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
