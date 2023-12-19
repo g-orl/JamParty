@@ -6,17 +6,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -24,22 +20,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import java.util.concurrent.Executor;
-
 import fr.eurecom.jamparty.databinding.ActivityMainBinding;
-import fr.eurecom.jamparty.ui.fragments.JoinFragment;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
 
-    private ActivityMainBinding binding;
+public class MainActivity extends AppCompatActivity {
     private Location location;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
     private FusedLocationProviderClient fusedLocationClient;
     public static String DATABASE_URL = "https://jamparty-c5fc6-default-rtdb.europe-west1.firebasedatabase.app/";
 
@@ -47,10 +39,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -74,13 +65,26 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     1);
         } else
             Log.i("Location Permission: ", "GRANTED");
-        LocationRequest locationRequest = new LocationRequest.Builder(10000)
+        locationRequest = new LocationRequest.Builder(10000)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .setIntervalMillis(10000)
                 .build();
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                for (Location loc : locationResult.getLocations()) {
+                    location = loc;
+                    Log.i("LOCATION", "Updated to " + location.getLatitude() + ", " + location.getLongitude());
+                }
+            }
+        };
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationClient.requestLocationUpdates(locationRequest, this, null);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        // fusedLocationClient.requestLocationUpdates(locationRequest, this, null);
+
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper());
     }
 
     private void addDummyData() {
@@ -96,18 +100,50 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         myRef.child(key).setValue(new Room("room03", "EngRoom", "key", new User("user03", 43.5841, 7.1184)));
     }
 
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        if(location == null)
-            return;
-        this.location = location;
-        Log.i("LOCATION", "Updated to " + location.getLatitude() + ", " + location.getLongitude());
-    }
-
     public Location getLocation() {
         return location;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Location Permission: ", "To be checked");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        } else
+            Log.i("Location Permission: ", "GRANTED");
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Location Permission: ", "To be checked");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        } else
+            Log.i("Location Permission: ", "GRANTED");
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+  
     /*
     public void spawnJoin(View v) {
         if(location == null)
