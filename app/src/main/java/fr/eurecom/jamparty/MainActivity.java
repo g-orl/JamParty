@@ -1,6 +1,7 @@
 package fr.eurecom.jamparty;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -27,6 +28,17 @@ import androidx.navigation.ui.NavigationUI;
 
 import fr.eurecom.jamparty.databinding.ActivityMainBinding;
 
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
+import com.spotify.sdk.android.auth.AuthorizationClient;
+import com.spotify.sdk.android.auth.AuthorizationRequest;
+import com.spotify.sdk.android.auth.AuthorizationResponse;
+
 
 public class MainActivity extends AppCompatActivity {
     private Location location;
@@ -34,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
     private FusedLocationProviderClient fusedLocationClient;
     public static String DATABASE_URL = "https://jamparty-c5fc6-default-rtdb.europe-west1.firebasedatabase.app/";
+
+    private static final String CLIENT_ID = "576209ee8d91417fbfc0e5ee2df80982";
+    private static final String REDIRECT_URI = "https://www.google.com/";
+    private SpotifyAppRemote mSpotifyAppRemote;
+    private static final int REQUEST_CODE = 1337;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (Location loc : locationResult.getLocations()) {
                     location = loc;
-                    Log.i("LOCATION", "Updated to " + location.getLatitude() + ", " + location.getLongitude());
+                    //Log.i("LOCATION", "Updated to " + location.getLatitude() + ", " + location.getLongitude());
                 }
             }
         };
@@ -143,7 +160,79 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-  
+
+    private void connected(){
+        System.out.println("Connected to spotify");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Set the connection parameters
+        ConnectionParams connectionParams =
+                new ConnectionParams.Builder(CLIENT_ID)
+                        .setRedirectUri(REDIRECT_URI)
+                        .showAuthView(true)
+                        .build();
+
+        // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
+
+        AuthorizationRequest.Builder builder =
+                new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+
+        builder.setScopes(new String[]{"streaming"});
+        AuthorizationRequest request = builder.build();
+
+        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+
+        SpotifyAppRemote.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
+
+                    @Override
+                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                        mSpotifyAppRemote = spotifyAppRemote;
+                        Log.d("MainActivity", "Connected! Yay!");
+
+                        // Now you can start interacting with App Remote
+                        connected();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        Log.e("MainActivity", throwable.getMessage(), throwable);
+
+                        // Something went wrong when attempting to connect! Handle errors here
+                    }
+                });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        // Check if result comes from the correct activity
+        if (requestCode == REQUEST_CODE) {
+            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
+
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    // Handle successful response
+                    System.out.println("Token was received: " + response.getAccessToken().toString());
+                    break;
+
+                // Auth flow returned an error
+                case ERROR:
+                    // Handle error response
+                    break;
+
+                // Most likely auth flow was cancelled
+                default:
+                    // Handle other cases
+            }
+        }
+    }
+
     /*
     public void spawnJoin(View v) {
         if(location == null)

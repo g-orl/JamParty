@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import fr.eurecom.jamparty.databinding.FragmentDashboardBinding;
 
+
 public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
