@@ -86,7 +86,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#00E676"
-                android:cornerRadius="50dp"
                 android:onClick="createRoom"
                 android:text="Create new room"
                 android:textColor="#0E0D0D"

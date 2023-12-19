@@ -3,6 +3,7 @@ package fr.eurecom.jamparty.ui.fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,10 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.widget.EditText;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 import fr.eurecom.jamparty.R;
 
@@ -62,6 +67,21 @@ public class CreateFragment extends DialogFragment {
         }
     }
 
+    private String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return Base64.getEncoder().encodeToString(hashedBytes);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
+
 //    @Override
 //    public View onCreateView(LayoutInflater inflater, ViewGroup container,
 //                             Bundle savedInstanceState) {
@@ -84,8 +104,19 @@ public class CreateFragment extends DialogFragment {
                             // user wants to create the room
                             // TODO add room to Firebase
                             EditText name = (EditText) getDialog().findViewById(R.id.inputName);
-                            EditText password = (EditText) getDialog().findViewById(R.id.inputPassword);
-                            System.out.println(String.format("User wants to create room:\nName: %s\nPassword: %s", name.getText().toString(), password.getText().toString()));
+
+                            EditText editTextPassword = (EditText) getDialog().findViewById(R.id.inputPassword);
+                            String hashedPassword = hashPassword(editTextPassword.getText().toString());
+
+                            EditText editTextParticipants = (EditText) getDialog().findViewById(R.id.inputMaxParticipants);
+                            EditText editTextHours = (EditText) getDialog().findViewById(R.id.inputHours);
+                            EditText editTextMinutes = (EditText) getDialog().findViewById(R.id.inputMinutes);
+
+                            int maxParticipants = Integer.parseInt(editTextParticipants.getText().toString());
+                            int hours = Integer.parseInt(editTextHours.getText().toString());
+                            int minutes = Integer.parseInt(editTextMinutes.getText().toString());
+
+                            System.out.println(String.format("User wants to create room:\nName: %s\nPassword: %s\nMax number of participants: %d\nDuration: %dh %dm", name.getText().toString(), editTextPassword.getText().toString(), maxParticipants, hours, minutes));
                         }
                     }
                 })
