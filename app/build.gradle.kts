@@ -34,6 +34,8 @@ android {
 
 dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.12.6")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.6")
 
     implementation("com.spotify.android:auth:1.2.5")
     implementation("androidx.browser:browser:1.7.0")

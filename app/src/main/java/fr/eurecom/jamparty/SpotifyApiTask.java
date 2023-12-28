@@ -63,13 +63,6 @@ public class SpotifyApiTask extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String result) {
         // Handle the result (JSON response) here
-
-        if (result != null) {
-            Log.d(TAG, "Spotify API response: " + result);
-            // Parse and process the JSON response
-        } else {
-            Log.e(TAG, "Failed to fetch data from Spotify API");
-        }
         listener.onTaskComplete(result);
     }
 }

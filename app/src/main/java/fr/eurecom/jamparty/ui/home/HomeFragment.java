@@ -18,12 +18,23 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import fr.eurecom.jamparty.MainActivity;
+import fr.eurecom.jamparty.Song;
+import fr.eurecom.jamparty.SongAdapter;
 import fr.eurecom.jamparty.SpotifyApiTask;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
 import fr.eurecom.jamparty.ui.fragments.CreateFragment;
 import fr.eurecom.jamparty.ui.fragments.JoinFragment;
 
+// mapper
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+
 public class HomeFragment extends Fragment {
+
+    private ArrayList<Song> songs;
+    private SongAdapter adapter;
 
     private FragmentHomeBinding binding;
 
@@ -34,6 +45,10 @@ public class HomeFragment extends Fragment {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        songs = new ArrayList<>();
+        adapter = new SongAdapter(getContext(), songs, this);
+        binding.songList.setAdapter(adapter);
 
         ImageButton playButton = binding.playButton;
         ImageButton backButton = binding.backButton;
@@ -61,8 +76,11 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                // need to query spotify and show the tracks
-                // Search for a given text
+
+                // clear the previous songs present in the array
+                songs.clear();
+                adapter.clear();
+
                 String textTyped = binding.editTextText.getText().toString();
                 if(textTyped.length() == 0) return;
                 String spotifyEndpointUrl = "https://api.spotify.com/v1/search?q=" + textTyped + "&type=track&market=FR";
@@ -74,7 +92,22 @@ public class HomeFragment extends Fragment {
                     public void onTaskComplete(String result) {
                         // TODO show the retreived text in the text box
                         if(result != null){
-                            Log.i("RESULT", result);
+                            try {
+                                // Create an ObjectMapper
+                                ObjectMapper objectMapper = new ObjectMapper();
+
+                                // Parse JSON string to JsonNode
+                                JsonNode jsonNode = objectMapper.readTree(result);
+
+                                for(int i = 0; i< jsonNode.get("tracks").get("items").size(); i++){
+                                    songs.add(new Song(jsonNode.get("tracks").get("items").get(i).get("name").asText()));
+                                }
+
+                                adapter.notifyDataSetChanged();
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }).execute(spotifyEndpointUrl);
