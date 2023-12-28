@@ -163,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
     private void connected(){
         mSpotifyAppRemote.getPlayerApi().resume();
         // mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+        // mSpotifyAppRemote.getUserApi().addToLibrary("spotify:track:6rqhFgbbKwnb9MLmUQDhG6");
+
     }
 
 
@@ -199,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                                     mSpotifyAppRemote = spotifyAppRemote;
                                     Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
-
+                                    MainActivity.ACCESS_TOKEN = response.getAccessToken();
                                     // Now you can start interacting with App Remote
                                     connected();
                                 }

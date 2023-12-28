@@ -1,6 +1,10 @@
 package fr.eurecom.jamparty.ui.home;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +18,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import fr.eurecom.jamparty.MainActivity;
+import fr.eurecom.jamparty.SpotifyApiTask;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
 import fr.eurecom.jamparty.ui.fragments.CreateFragment;
 import fr.eurecom.jamparty.ui.fragments.JoinFragment;
@@ -43,6 +48,40 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        binding.editTextText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // need to query spotify and show the tracks
+                // Search for a given text
+                String textTyped = binding.editTextText.getText().toString();
+                if(textTyped.length() == 0) return;
+                String spotifyEndpointUrl = "https://api.spotify.com/v1/search?q=" + textTyped + "&type=track&market=FR";
+
+                // Execute the AsyncTask
+
+                new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
+                    @Override
+                    public void onTaskComplete(String result) {
+                        // TODO show the retreived text in the text box
+                        if(result != null){
+                            Log.i("RESULT", result);
+                        }
+                    }
+                }).execute(spotifyEndpointUrl);
+
+                // Log.i("TEXT", binding.editTextText.getText().toString());
+            }
+        });
         binding.buttonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,4 +147,5 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }
