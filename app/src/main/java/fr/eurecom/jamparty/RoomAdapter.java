@@ -41,15 +41,13 @@ public class RoomAdapter extends ArrayAdapter {
 
         nameTxt.setText(room.getName());
 
-        joinBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO integration backend
-                // MOCKED send name to MainActivity
-                caller.getHomeViewModel().setRoomName(nameTxt.getText().toString());
-                caller.getHomeViewModel().setInRoom(true);
-                caller.dismiss();
-            }
+
+        joinBtn.setOnClickListener(v -> {
+            // TODO integration backend
+            // MOCKED send name to MainActivity
+            caller.getHomeViewModel().setRoomName(nameTxt.getText().toString());
+            caller.getHomeViewModel().setInRoom(true);
+            caller.dismiss();
         });
         return convertView;
     }
