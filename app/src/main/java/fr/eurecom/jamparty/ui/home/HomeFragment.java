@@ -21,6 +21,8 @@ import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.Song;
 import fr.eurecom.jamparty.SongAdapter;
 import fr.eurecom.jamparty.SpotifyApiTask;
+import fr.eurecom.jamparty.Suggestion;
+import fr.eurecom.jamparty.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
 import fr.eurecom.jamparty.ui.fragments.CreateFragment;
 import fr.eurecom.jamparty.ui.fragments.JoinFragment;
@@ -34,6 +36,8 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
 
     private ArrayList<Song> songs;
+    public ArrayList<Suggestion> suggestions;
+    public SuggestionAdapter suggestionAdapter;
     private SongAdapter adapter;
 
     private FragmentHomeBinding binding;
@@ -47,8 +51,13 @@ public class HomeFragment extends Fragment {
         View root = binding.getRoot();
 
         songs = new ArrayList<>();
+        suggestions = new ArrayList<>();
+
         adapter = new SongAdapter(getContext(), songs, this);
+        suggestionAdapter = new SuggestionAdapter(getContext(), suggestions, this);
+
         binding.songList.setAdapter(adapter);
+        binding.suggestions.setAdapter(suggestionAdapter);
 
         ImageButton playButton = binding.playButton;
         ImageButton backButton = binding.backButton;
