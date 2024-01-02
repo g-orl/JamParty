@@ -9,6 +9,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static String ACCESS_TOKEN = "";
     public static final String CLIENT_ID = "576209ee8d91417fbfc0e5ee2df80982";
+    public static String USER_ID = "576209ee8d91417fbfc0e5ee2df80982";
     public static final String REDIRECT_URI = "fr.eurecom.jamparty://logged";
     public static SpotifyAppRemote mSpotifyAppRemote;
     public static final int REQUEST_CODE = 1337;
@@ -161,9 +164,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected(){
-        // mSpotifyAppRemote.getPlayerApi().resume();
-        // mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-        // mSpotifyAppRemote.getUserApi().addToLibrary("spotify:track:6rqhFgbbKwnb9MLmUQDhG6");
+
+        // get user id
+        String spotifyEndpointUrl = "https://api.spotify.com/v1/me";
+
+        // Execute the AsyncTask
+        new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
+            @Override
+            public void onTaskComplete(String result) {
+                if(result != null){
+                    try {
+                        // Create an ObjectMapper
+                        ObjectMapper objectMapper = new ObjectMapper();
+
+                        // Parse JSON string to JsonNode
+                        JsonNode jsonNode = objectMapper.readTree(result);
+
+                        String id = jsonNode.get("id").asText();
+                        MainActivity.USER_ID = id;
+                        Toast.makeText(MainActivity.this, "User id: " + MainActivity.USER_ID, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).execute(spotifyEndpointUrl);
 
     }
 
@@ -200,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                                     mSpotifyAppRemote = spotifyAppRemote;
-                                    Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
                                     MainActivity.ACCESS_TOKEN = response.getAccessToken();
                                     // Now you can start interacting with App Remote
                                     connected();
