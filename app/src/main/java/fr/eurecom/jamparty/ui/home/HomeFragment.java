@@ -164,6 +164,8 @@ public class HomeFragment extends Fragment {
         homeViewModel.getInRoom().observe(this.getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
+                binding.editTextText.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
+                binding.songList.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
                 binding.buttonExit.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
                 binding.playerArea.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
                 binding.buttonCreate.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
