@@ -98,12 +98,16 @@ public class HomeFragment extends Fragment {
 
                                 // Parse JSON string to JsonNode
                                 JsonNode jsonNode = objectMapper.readTree(result);
-
+                                Song temp;
                                 for(int i = 0; i< jsonNode.get("tracks").get("items").size(); i++){
-                                    songs.add(new Song(
+                                    temp = new Song(
                                             jsonNode.get("tracks").get("items").get(i).get("name").asText(),
                                             jsonNode.get("tracks").get("items").get(i).get("artists").get(0).get("name").asText(),
-                                            jsonNode.get("tracks").get("items").get(i).get("uri").asText()));
+                                            jsonNode.get("tracks").get("items").get(i).get("uri").asText());
+
+                                    temp.setImage_url(jsonNode.get("tracks").get("items").get(i).get("album").get("images").get(0).get("url").asText());
+
+                                    songs.add(temp);
                                 }
 
                                 adapter.notifyDataSetChanged();

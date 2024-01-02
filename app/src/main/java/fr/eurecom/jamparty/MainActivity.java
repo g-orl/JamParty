@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected(){
-        mSpotifyAppRemote.getPlayerApi().resume();
+        // mSpotifyAppRemote.getPlayerApi().resume();
         // mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
         // mSpotifyAppRemote.getUserApi().addToLibrary("spotify:track:6rqhFgbbKwnb9MLmUQDhG6");
 

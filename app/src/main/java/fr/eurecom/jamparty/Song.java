@@ -4,6 +4,7 @@ public class Song {
     private String name;
     private String author;
     private String uri;
+    private String image_url;
 
     public Song(String name, String author, String uri) {
         this.name = name;
@@ -33,5 +34,13 @@ public class Song {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
     }
 }
