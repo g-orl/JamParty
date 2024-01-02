@@ -1,17 +1,32 @@
 package fr.eurecom.jamparty;
 
+import java.util.ArrayList;
+
 public class Room {
 
-    private String id;
-    private String name;
-    private String hash;
-    private User owner;
+    private String id;      // id of the room
+    private String name;    // name of the room
+    private String hash;    // hash of the password to join the room
+    private String ownerId; // id of the user currently owning the room
+    private ArrayList<String> userIds;  // Contains the ids of the users that are currently inside the room
+    private long creationTime;  // Date when the room was created
+    private int maxParticipants;    // Max number of participants allowed in the room
+    private boolean terminated; // Tells if the room is still active, i.e. more users can join
 
-    public Room(String id, String name, String hash, User owner) {
+
+    public Room(String id, String name, String hash) {
         this.id = id;
         this.name = name;
         this.hash = hash;
-        this.owner = owner;
+        this.ownerId = null;
+        this.userIds = new ArrayList<>();
+        this.creationTime = System.currentTimeMillis();
+        this.maxParticipants = 16;
+        this.terminated = false;
+    }
+
+    public Room() {
+
     }
 
     public String getId() {
@@ -26,8 +41,8 @@ public class Room {
         return hash;
     }
 
-    public User getOwner() {
-        return owner;
+    public String getOwnerId() {
+        return ownerId;
     }
 
     public void setId(String id) {
@@ -42,8 +57,24 @@ public class Room {
         this.hash = hash;
     }
 
-    public void setOwnerId(User owner) {
-        this.owner = owner;
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public ArrayList<String> getUserIds() {
+        return userIds;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public int getMaxParticipants() {
+        return maxParticipants;
+    }
+
+    public boolean isTerminated() {
+        return terminated;
     }
 
 }

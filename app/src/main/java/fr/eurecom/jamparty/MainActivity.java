@@ -104,19 +104,41 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper());
+        addDummyData(true);
     }
 
-    private void addDummyData() {
+    private void addDummyData(boolean execute) {
+        if(!execute) return;
         FirebaseDatabase db = FirebaseDatabase.getInstance(DATABASE_URL);
+        DatabaseReference usersRef = db.getReference("UsersNew");
+        DatabaseReference roomsRef = db.getReference("RoomsNew");
 
-        DatabaseReference myRef = db.getReference("Rooms");
+        String key = "user"+usersRef.push().getKey();
+        User user1 = new User(key, 43.5722, 7.1030);
+        key = "user"+usersRef.push().getKey();
+        User user2 = new User(key, 43.6144, 7.0711);
+        key = "user"+usersRef.push().getKey();
+        User user3 = new User(key, 43.5841, 7.1184);
 
-        String key = myRef.push().getKey();
-        myRef.child(key).setValue(new Room("room01", "ItaRoom", "chiave", new User("user01", 43.5722, 7.1030)));
-        key = myRef.push().getKey();
-        myRef.child(key).setValue(new Room("room02", "FraRoom", "chiave_in_francese", new User("user02", 43.6144, 7.0711)));
-        key = myRef.push().getKey();
-        myRef.child(key).setValue(new Room("room03", "EngRoom", "key", new User("user03", 43.5841, 7.1184)));
+
+        key = "room"+roomsRef.push().getKey();
+        Room room1 = new Room(key, "ItaRoom", "chiave");
+        key = "room"+roomsRef.push().getKey();
+        Room room2 = new Room(key, "FraRoom", "chiave_in_francese");
+        key = "room"+roomsRef.push().getKey();
+        Room room3 = new Room(key, "EngRoom", "key");
+
+        RoomUserManager.userJoinRoom(user1, room1, true);
+        RoomUserManager.userJoinRoom(user2, room2, true);
+        RoomUserManager.userJoinRoom(user3, room3, true);
+
+        usersRef.child(user1.getId()).setValue(user1);
+        usersRef.child(user2.getId()).setValue(user2);
+        usersRef.child(user3.getId()).setValue(user3);
+
+        roomsRef.child(room1.getId()).setValue(room1);
+        roomsRef.child(room2.getId()).setValue(room2);
+        roomsRef.child(room3.getId()).setValue(room3);
     }
 
     public Location getLocation() {
@@ -251,5 +273,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }
