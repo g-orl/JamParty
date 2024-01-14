@@ -24,14 +24,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.ui.fragments.RoomFragment;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 
 public class SongAdapter extends ArrayAdapter {
 
-    private HomeFragment caller;
+    private RoomFragment caller;
 
-    public SongAdapter(@NonNull Context context, ArrayList<Song> songs, HomeFragment caller) {
+    public SongAdapter(@NonNull Context context, ArrayList<Song> songs, RoomFragment caller) {
         super(context, 0, songs);
         this.caller = caller;
 

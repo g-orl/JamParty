@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -20,15 +21,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 
 import fr.eurecom.jamparty.ui.fragments.JoinFragment;
+import fr.eurecom.jamparty.ui.fragments.RoomFragment;
+import fr.eurecom.jamparty.ui.fragments.RoomViewModel;
+import fr.eurecom.jamparty.ui.home.HomeFragment;
 import fr.eurecom.jamparty.ui.home.HomeViewModel;
 
 public class RoomAdapter extends ArrayAdapter {
+    private HomeFragment caller;
 
-    private JoinFragment caller;
-
-    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts, JoinFragment caller) {
+    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts, HomeFragment homeFragment) {
         super(context, 0, contacts);
-        this.caller = caller;
+        this.caller = homeFragment;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -43,11 +46,10 @@ public class RoomAdapter extends ArrayAdapter {
 
 
         joinBtn.setOnClickListener(v -> {
-            // TODO integration backend
-            // MOCKED send name to MainActivity
-            caller.getHomeViewModel().setRoomName(nameTxt.getText().toString());
-            caller.getHomeViewModel().setInRoom(true);
-            caller.dismiss();
+            RoomFragment roomFragment = new RoomFragment(caller.getRoomViewModel());
+            caller.getRoomViewModel().setRoomName(nameTxt.getText().toString());
+            caller.substituteFragment(roomFragment);
+
         });
         return convertView;
     }

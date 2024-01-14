@@ -24,14 +24,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.ui.fragments.RoomFragment;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 
 public class SuggestionAdapter extends ArrayAdapter {
 
-    private HomeFragment caller;
+    private RoomFragment caller;
 
-    public SuggestionAdapter(@NonNull Context context, ArrayList<Suggestion> suggestions, HomeFragment caller) {
+    public SuggestionAdapter(@NonNull Context context, ArrayList<Suggestion> suggestions, RoomFragment caller) {
         super(context, 0, suggestions);
         this.caller = caller;
     }
