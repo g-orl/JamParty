@@ -6,81 +6,83 @@
     android:layout_height="match_parent"
     android:backgroundTint="#FF1744">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingLeft="50dp"
-            android:paddingTop="50dp"
-            android:paddingRight="50dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/textRoomName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:text="RoomName"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textRoomName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="RoomName"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?android:attr/listDivider"
+                android:backgroundTint="#FFFFFF" />
 
-                <Button
-                    android:id="@+id/buttonExit"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="10dp"
-                    android:text="Exit"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/buttonExit"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add a new song"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+                android:text="Exit"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/editTextText"
-                android:layout_width="match_parent"
-                android:layout_height="62dp"
-                android:ems="10"
-                android:inputType="text"
-                android:text="Search"
-                android:textSize="18sp" />
+        </LinearLayout>
 
-            <ListView
-                android:id="@+id/songList"
-                android:layout_width="match_parent"
-                android:layout_height="194dp">
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add a new song"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
-            </ListView>
+        <EditText
+            android:id="@+id/editTextText"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Search"
+            android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Pick next songs"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+        <ListView
+            android:id="@+id/songList"
+            android:layout_width="match_parent"
+            android:layout_height="194dp">
 
-            <ListView
-                android:id="@+id/suggestions"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+        </ListView>
 
-            <!--<LinearLayout
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pick next songs"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+
+        <ListView
+            android:id="@+id/suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="194dp" />
+
+        <!--<LinearLayout
                 android:id="@+id/playerArea"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -126,8 +128,7 @@
                         android:src="@drawable/secondary_button" />
                 </LinearLayout>
             </LinearLayout>
--->
-        </LinearLayout>
-    </ScrollView>
+    -->
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

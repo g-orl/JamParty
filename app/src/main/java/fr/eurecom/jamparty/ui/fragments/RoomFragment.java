@@ -14,12 +14,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.Song;
 import fr.eurecom.jamparty.SongAdapter;
 import fr.eurecom.jamparty.SpotifyApiTask;
@@ -34,21 +37,17 @@ public class RoomFragment  extends Fragment {
     public SuggestionAdapter suggestionAdapter;
     private SongAdapter adapter;
     private FragmentRoomBinding binding;
-    private RoomViewModel roomViewModel;
-    private FragmentManager fragmentManager;
+    public NavController fragmentController;
 
-    public RoomFragment(RoomViewModel roomViewModel) {
-        this.roomViewModel = roomViewModel;
-    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
 
-        this.fragmentManager = getParentFragmentManager();
-
         binding = FragmentRoomBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        this.fragmentController = NavHostFragment.findNavController(this);
 
         songs = new ArrayList<>();
         suggestions = new ArrayList<>();
@@ -67,8 +66,8 @@ public class RoomFragment  extends Fragment {
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                roomViewModel.setRoomName("");
-                fragmentManager.beginTransaction().replace(container.getId(), new HomeFragment()).commit();
+                // TODO go back to home fragment
+                fragmentController.navigate(R.id.navigation_home);
             }
         });
 
@@ -153,12 +152,7 @@ public class RoomFragment  extends Fragment {
             }
         });*/
 
-        roomViewModel.getRoomName().observe(this.getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                binding.textRoomName.setText(s);
-            }
-        });
+        binding.textRoomName.setText(getArguments().getString("room_name"));
 
         return root;
     }

@@ -11,8 +11,8 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
@@ -21,7 +21,6 @@ import fr.eurecom.jamparty.RoomAdapter;
 import fr.eurecom.jamparty.User;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
 import fr.eurecom.jamparty.ui.fragments.CreateFragment;
-import fr.eurecom.jamparty.ui.fragments.RoomViewModel;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,26 +36,23 @@ public class HomeFragment extends Fragment {
     private FirebaseDatabase database;
     public static final double MAX_DIST_IN_METERS = 1000;
     public static String TAG = "JoinRoomDialog";
-    private RoomViewModel roomViewModel;
     private FragmentHomeBinding binding;
-    public FragmentManager fragmentManager;
+    public NavController fragmentController;
     public LayoutInflater inflater;
     public ViewGroup container;
 
-    public void substituteFragment(Fragment fragment){
-        fragmentManager
-                .beginTransaction()
-                .replace(container.getId(), fragment).commit();
+    public void enterRoom(String name){
+        Bundle bundle = new Bundle();
+        bundle.putString("room_name", name);
+        fragmentController.navigate(R.id.navigation_room, bundle);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        this.roomViewModel =
-                new ViewModelProvider(this).get(RoomViewModel.class);
         this.inflater = inflater;
         this.container = container;
 
-        fragmentManager = getParentFragmentManager();
+        this.fragmentController = NavHostFragment.findNavController(this);
 
         Activity activity = getActivity();
         if (activity != null && activity instanceof MainActivity)
@@ -82,9 +78,6 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-    public RoomViewModel getRoomViewModel(){
-        return this.roomViewModel;
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
