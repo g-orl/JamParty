@@ -1,105 +1,74 @@
 package fr.eurecom.jamparty.ui.home;
 
+import android.app.Activity;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import fr.eurecom.jamparty.MainActivity;
+import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.Room;
+import fr.eurecom.jamparty.RoomAdapter;
+import fr.eurecom.jamparty.User;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
 import fr.eurecom.jamparty.ui.fragments.CreateFragment;
-import fr.eurecom.jamparty.ui.fragments.JoinFragment;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
-
+    private Location location;
+    private FirebaseDatabase database;
+    public static final double MAX_DIST_IN_METERS = 1000;
+    public static String TAG = "JoinRoomDialog";
     private FragmentHomeBinding binding;
+    public NavController fragmentController;
+    public LayoutInflater inflater;
+    public ViewGroup container;
+
+    public void enterRoom(String name){
+        Bundle bundle = new Bundle();
+        bundle.putString("room_name", name);
+        fragmentController.navigate(R.id.navigation_room, bundle);
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        this.inflater = inflater;
+        this.container = container;
+
+        this.fragmentController = NavHostFragment.findNavController(this);
+
+        Activity activity = getActivity();
+        if (activity != null && activity instanceof MainActivity)
+            this.location = ((MainActivity) getActivity()).getLocation();
+        this.database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        ImageButton playButton = binding.playButton;
-        ImageButton backButton = binding.backButton;
-        ImageButton nextButton = binding.nextButton;
-        Button exitButton = binding.buttonExit;
 
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                homeViewModel.setRoomName("");
-                homeViewModel.setInRoom(false);
-            }
-        });
-
-        binding.buttonCreate.setOnClickListener(new View.OnClickListener() {
+        binding.buttonCreateRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new CreateFragment().show(getChildFragmentManager(), CreateFragment.TAG);
             }
         });
-
-        binding.buttonJoin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                homeViewModel.setInRoom(true);
-//                homeViewModel.setRoomName("Room1");
-                if (((MainActivity)getActivity()).getLocation()!=null){
-                    new JoinFragment(homeViewModel).show(getChildFragmentManager(), JoinFragment.TAG);
-                }
-            }
-        });
-
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked play!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked next!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked back!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        homeViewModel.getInRoom().observe(this.getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                binding.buttonExit.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
-                binding.playerArea.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
-                binding.buttonCreate.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
-                binding.buttonJoin.setVisibility(aBoolean ? View.GONE : View.VISIBLE);
-                binding.textRoomName.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
-            }
-        });
-
-        homeViewModel.getRoomName().observe(this.getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                binding.textRoomName.setText(s);
-            }
-        });
-
         return root;
     }
 
@@ -108,4 +77,57 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+
+        if (location == null)
+            return;
+
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        Log.i("LatLng", latitude + " " + longitude);
+
+        DatabaseReference rooms = database.getReference("Rooms");
+        Query query = rooms.orderByChild("owner/latitude")
+                .startAt(latitude - 0.1)
+                .endAt(latitude + 0.1);
+        final ArrayList<Room> roomsArray = new ArrayList<>();
+
+        final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray, this);
+        final ListView roomsList = view.findViewById(R.id.roomsPosition);
+        roomsList.setAdapter(adapter);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                roomsArray.clear();
+                adapter.clear();
+                for (DataSnapshot roomSnapshot : dataSnapshot.getChildren()) {
+                    Log.i("Found: ", roomSnapshot.child("id").getValue(String.class));
+                    double roomLat = roomSnapshot.child("owner/latitude").getValue(Double.class);
+                    double roomLng = roomSnapshot.child("owner/longitude").getValue(Double.class);
+                    float[] dist = new float[1];
+                    Location.distanceBetween(location.getLatitude(), location.getLongitude(), roomLat, roomLng, dist);
+                    if(dist[0] <= MAX_DIST_IN_METERS) {
+                        User owner = new User(roomSnapshot.child("owner/id").getValue(String.class),
+                                roomLat,
+                                roomLng);
+                        Room room = new Room(roomSnapshot.child("id").getValue(String.class),
+                                roomSnapshot.child("name").getValue(String.class),
+                                roomSnapshot.child("hash").getValue(String.class),
+                                owner);
+                        roomsArray.add(room);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Database Error", databaseError.getMessage());
+            }
+        });
+    }
 }
+

@@ -33,8 +33,17 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.12.6")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.6")
+
+    implementation("com.spotify.android:auth:1.2.5")
+    implementation("androidx.browser:browser:1.7.0")
+    implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
+    implementation("com.google.code.gson:gson:2.6.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

@@ -1,12 +1,16 @@
 package fr.eurecom.jamparty;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -25,6 +29,14 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import com.spotify.sdk.android.auth.AuthorizationClient;
+import com.spotify.sdk.android.auth.AuthorizationRequest;
+import com.spotify.sdk.android.auth.AuthorizationResponse;
+
 import fr.eurecom.jamparty.databinding.ActivityMainBinding;
 
 
@@ -34,6 +46,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
     private FusedLocationProviderClient fusedLocationClient;
     public static String DATABASE_URL = "https://jamparty-c5fc6-default-rtdb.europe-west1.firebasedatabase.app/";
+
+    public static String ACCESS_TOKEN = "";
+    public static final String CLIENT_ID = "576209ee8d91417fbfc0e5ee2df80982";
+    public static String USER_ID = "576209ee8d91417fbfc0e5ee2df80982";
+    public static final String REDIRECT_URI = "fr.eurecom.jamparty://logged";
+    public static SpotifyAppRemote mSpotifyAppRemote;
+    public static final int REQUEST_CODE = 1337;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_profile)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -73,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (Location loc : locationResult.getLocations()) {
                     location = loc;
-                    Log.i("LOCATION", "Updated to " + location.getLatitude() + ", " + location.getLongitude());
+                    //Log.i("LOCATION", "Updated to " + location.getLatitude() + ", " + location.getLongitude());
                 }
             }
         };
@@ -85,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper());
-        addDummyData(true);
+        addDummyData(false);
     }
 
     private void addDummyData(boolean execute) {
@@ -164,6 +183,95 @@ public class MainActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    private void connected(){
+
+        // get user id
+        String spotifyEndpointUrl = "https://api.spotify.com/v1/me";
+
+        // Execute the AsyncTask
+        new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
+            @Override
+            public void onTaskComplete(String result) {
+                if(result != null){
+                    try {
+                        // Create an ObjectMapper
+                        ObjectMapper objectMapper = new ObjectMapper();
+
+                        // Parse JSON string to JsonNode
+                        JsonNode jsonNode = objectMapper.readTree(result);
+
+                        String id = jsonNode.get("id").asText();
+                        MainActivity.USER_ID = id;
+                        Toast.makeText(MainActivity.this, "User id: " + MainActivity.USER_ID, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).execute(spotifyEndpointUrl);
+
+    }
+
+
+    /*
+    public void spawnJoin(View v) {
+        if(location == null)
+            return;
+        JoinFragment floatingFragment = new JoinFragment();
+        floatingFragment.show(getSupportFragmentManager(), "YourFloatingFragmentTag");
+    }
+    */
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        // Check if result comes from the correct activity
+        if (requestCode == REQUEST_CODE) {
+            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
+
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    // Handle successful response
+
+                    ConnectionParams connectionParams =
+                            new ConnectionParams.Builder(CLIENT_ID)
+                                    .setRedirectUri(REDIRECT_URI)
+                                    .showAuthView(true)
+                                    .build();
+
+                    SpotifyAppRemote.connect(this, connectionParams,
+                            new Connector.ConnectionListener() {
+
+                                @Override
+                                public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                                    mSpotifyAppRemote = spotifyAppRemote;
+                                    MainActivity.ACCESS_TOKEN = response.getAccessToken();
+                                    // Now you can start interacting with App Remote
+                                    connected();
+                                }
+
+                                @Override
+                                public void onFailure(Throwable throwable) {
+                                    Log.e("MainActivity", throwable.getMessage(), throwable);
+                                    Toast.makeText(MainActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+
+                                    // Something went wrong when attempting to connect! Handle errors here
+                                }
+                            });
+                    break;
+
+                // Auth flow returned an error
+                case ERROR:
+                    // Handle error response
+                    break;
+
+                // Most likely auth flow was cancelled
+                default:
+                    // Handle other cases
+            }
+        }
     }
 
 }

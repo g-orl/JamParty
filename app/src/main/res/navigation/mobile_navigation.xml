@@ -18,8 +18,14 @@
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="fr.eurecom.jamparty.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_room"
+        android:name="fr.eurecom.jamparty.ui.fragments.RoomFragment"
+        android:label="@string/title_room"
+        tools:layout="@layout/fragment_room" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="fr.eurecom.jamparty.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>
