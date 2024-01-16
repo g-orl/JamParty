@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper());
-        addDummyData(true);
+        addDummyData(false);
     }
 
     private void addDummyData(boolean execute) {

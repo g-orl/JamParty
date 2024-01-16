@@ -47,10 +47,10 @@ public class SuggestionAdapter extends ArrayAdapter {
         TextView authorTxt = convertView.findViewById(R.id.songAuthor);
         ImageView image = convertView.findViewById(R.id.songImage);
 
-        nameTxt.setText(suggestion.getSong().getName());
-        authorTxt.setText(suggestion.getSong().getAuthor());
+        nameTxt.setText(suggestion.getName());
+        authorTxt.setText(suggestion.getAuthor());
         // TODO save bitmap in the song so that there is no need to downlaod again
-        Glide.with(caller.getView()).load(suggestion.getSong().getImage_url()).into(image);
+        Glide.with(caller.getView()).load(suggestion.getImage_url()).into(image);
 
         return convertView;
     }

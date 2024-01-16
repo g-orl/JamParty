@@ -13,7 +13,7 @@ public class Room {
     private long creationTime;  // Date when the room was created
     private int maxParticipants;    // Max number of participants allowed in the room
     private boolean terminated; // Tells if the room is still active, i.e. more users can join
-    private LinkedList<Song> queue;
+    private LinkedList<Suggestion> queue;
     private ArrayList<Song> played;
 
 
@@ -31,7 +31,8 @@ public class Room {
     }
 
     public Room() {
-
+        this.queue = new LinkedList<>();
+        this.played = new ArrayList<>();
     }
 
     public String getId() {
@@ -82,18 +83,18 @@ public class Room {
         return terminated;
     }
 
-    public void addToQueue(Song song) { this.queue.push(song); }
+    public void addToQueue(Suggestion song) { this.queue.push(song); }
 
-    public LinkedList<Song> getQueue() { return this.queue; }
+    public LinkedList<Suggestion> getQueue() { return this.queue; }
 
-    public Song nextToPlay() {
+    public Suggestion nextToPlay() {
         return this.queue.isEmpty() ? null : this.queue.get(0);
     }
 
-    public Song playNext() {
+    public Suggestion playNext() {
         if (this.queue.isEmpty())
             return null;
-        Song next = this.queue.removeFirst();
+        Suggestion next = this.queue.removeFirst();
         this.played.add(next);
         return next;
     }

@@ -3,6 +3,7 @@ package fr.eurecom.jamparty.ui.fragments;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,17 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.Room;
 import fr.eurecom.jamparty.Song;
 import fr.eurecom.jamparty.SongAdapter;
 import fr.eurecom.jamparty.SpotifyApiTask;
@@ -51,6 +59,23 @@ public class RoomFragment  extends Fragment {
 
         songs = new ArrayList<>();
         suggestions = new ArrayList<>();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
+        DatabaseReference rooms = database.getReference("Rooms");
+        rooms.child(getArguments().getString("room_id")).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Room room = snapshot.getValue(Room.class);
+                suggestions.addAll(room.getQueue());
+                // need to send changes to db
+                rooms.child(getArguments().getString("room_id")).setValue(room);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Database Error", error.getMessage());
+            }
+        });
 
         adapter = new SongAdapter(getContext(), songs, this);
         suggestionAdapter = new SuggestionAdapter(getContext(), suggestions, this);
