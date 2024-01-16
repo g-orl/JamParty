@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper());
-        addDummyData(true);
+        addDummyData(false);
     }
 
     private void addDummyData(boolean execute) {
@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
             @Override
             public void onTaskComplete(String result) {
+
                 if(result != null){
                     try {
                         // Create an ObjectMapper
@@ -229,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
             AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
-
+            System.out.println(response.getAccessToken());
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
@@ -273,6 +274,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 
 }

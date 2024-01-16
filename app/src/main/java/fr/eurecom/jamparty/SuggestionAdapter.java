@@ -28,40 +28,29 @@ import fr.eurecom.jamparty.ui.fragments.RoomFragment;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 
-public class SongAdapter extends ArrayAdapter {
+public class SuggestionAdapter extends ArrayAdapter {
 
     private RoomFragment caller;
 
-    public SongAdapter(@NonNull Context context, ArrayList<Song> songs, RoomFragment caller) {
-        super(context, 0, songs);
+    public SuggestionAdapter(@NonNull Context context, ArrayList<Suggestion> suggestions, RoomFragment caller) {
+        super(context, 0, suggestions);
         this.caller = caller;
-
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        Song song = (Song) getItem(position);
+        Suggestion suggestion = (Suggestion) getItem(position);
         if(convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_song, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_suggestion, parent, false);
         }
+
         TextView nameTxt = convertView.findViewById(R.id.songName);
         TextView authorTxt = convertView.findViewById(R.id.songAuthor);
         ImageView image = convertView.findViewById(R.id.songImage);
-        EditText editText = caller.getView().findViewById(R.id.editTextText);
 
-        nameTxt.setText(song.getName());
-        authorTxt.setText(song.getAuthor());
-        Glide.with(caller.getView()).load(song.getImage_url()).into(image);
-
-        convertView.findViewById(R.id.songContainer).setOnClickListener(v -> {
-            // add the clicked song to the suggestion queue
-
-            Toast.makeText(parent.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
-            this.caller.suggestions.add(new Suggestion(song, MainActivity.USER_ID));
-            this.caller.suggestionAdapter.notifyDataSetChanged();
-
-            editText.setText("");
-            this.clear();
-        });
+        nameTxt.setText(suggestion.getSong().getName());
+        authorTxt.setText(suggestion.getSong().getAuthor());
+        // TODO save bitmap in the song so that there is no need to downlaod again
+        Glide.with(caller.getView()).load(suggestion.getSong().getImage_url()).into(image);
 
         return convertView;
     }

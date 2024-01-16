@@ -58,7 +58,8 @@ public class JoinFragment extends DialogFragment {
         this.database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
     }
 
-    @Override
+
+    /*@Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Button closeBtn = view.findViewById(R.id.closeBtn);
         closeBtn.setOnClickListener(v -> dismiss());
@@ -125,5 +126,5 @@ public class JoinFragment extends DialogFragment {
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) { Log.e("Database Error", databaseError.getMessage()); }
             });
-    }
+    }*/
 }
