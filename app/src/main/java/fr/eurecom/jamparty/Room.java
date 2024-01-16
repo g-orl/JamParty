@@ -1,5 +1,7 @@
 package fr.eurecom.jamparty;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 
 public class Room {
@@ -7,7 +9,7 @@ public class Room {
     private String id;      // id of the room
     private String name;    // name of the room
     private String hash;    // hash of the password to join the room
-    private String ownerId; // id of the user currently owning the room
+    private @Nullable String ownerId; // id of the user currently owning the room
     private ArrayList<String> userIds;  // Contains the ids of the users that are currently inside the room
     private long creationTime;  // Date when the room was created
     private int maxParticipants;    // Max number of participants allowed in the room
@@ -76,5 +78,7 @@ public class Room {
     public boolean isTerminated() {
         return terminated;
     }
+
+    public int getNumParticipants() { return userIds.size(); }
 
 }

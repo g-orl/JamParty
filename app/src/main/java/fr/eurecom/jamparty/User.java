@@ -39,17 +39,22 @@ public class User {
     }
 
     public String getCurrentRoomId() { return currentRoomId; }
-    public void setCurrentRoomId(String roomId) { this.currentRoomId = roomId; }
+    public void setCurrentRoomId(@Nullable String roomId) { this.currentRoomId = roomId; }
 
     public ArrayList<String> getRoomIdsHistory() { return roomIdsHistory; }
 
     public String getOwnedRoomId() { return ownedRoomId; }
 
-    public void setOwnedRoomId(String ownedRoomId) {
-        this.ownedRoomId = ownedRoomId;
+    public void setOwnedRoomId(@Nullable String roomId) {
+        this.ownedRoomId = roomId;
     }
 
     public boolean equals(User other) {
         return id == other.id;
+    }
+
+    public static User get(String userId) {
+        // retrieve user object from remote DB
+        return null;
     }
 }
