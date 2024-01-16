@@ -96,8 +96,8 @@ public class HomeFragment extends Fragment {
         final ListView roomsList = view.findViewById(R.id.roomsPosition);
         roomsList.setAdapter(adapter);
 
-        DatabaseReference usersRef = database.getReference("UsersNew");
-        DatabaseReference roomsRef = database.getReference("RoomsNew");
+        DatabaseReference usersRef = database.getReference(MainActivity.USERS_TABLE);
+        DatabaseReference roomsRef = database.getReference(MainActivity.ROOMS_TABLE);
         usersRef.orderByChild("latitude")
                 .startAt(latitude - 0.1)
                 .endAt(latitude + 0.1)
