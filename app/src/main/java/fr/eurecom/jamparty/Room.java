@@ -99,4 +99,8 @@ public class Room {
         return next;
     }
 
+    public void setQueue(ArrayList<Suggestion> queue) { this.queue = new LinkedList<>(queue); }
+
+    public void setPlayed(ArrayList<Song> played) { this.played = played; }
+
 }
