@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String REDIRECT_URI = "fr.eurecom.jamparty://logged";
     public static SpotifyAppRemote mSpotifyAppRemote;
     public static final int REQUEST_CODE = 1337;
+    private static final String ROOMS_TABLE = "Rooms";
+    private static final String USERS_TABLE = "Users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,14 +106,14 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper());
-        addDummyData(false);
+        addDummyData(true);
     }
 
     private void addDummyData(boolean execute) {
         if(!execute) return;
         FirebaseDatabase db = FirebaseDatabase.getInstance(DATABASE_URL);
-        DatabaseReference usersRef = db.getReference("UsersNew");
-        DatabaseReference roomsRef = db.getReference("RoomsNew");
+        DatabaseReference usersRef = db.getReference(USERS_TABLE);
+        DatabaseReference roomsRef = db.getReference(ROOMS_TABLE);
 
         String key = "user"+usersRef.push().getKey();
         User user1 = new User(key, 43.5722, 7.1030);
