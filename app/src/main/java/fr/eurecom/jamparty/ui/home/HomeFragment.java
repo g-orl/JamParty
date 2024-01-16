@@ -30,6 +30,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class HomeFragment extends Fragment {
     private Location location;
@@ -89,45 +91,62 @@ public class HomeFragment extends Fragment {
         double longitude = location.getLongitude();
         Log.i("LatLng", latitude + " " + longitude);
 
-        DatabaseReference rooms = database.getReference("Rooms");
-        Query query = rooms.orderByChild("owner/latitude")
-                .startAt(latitude - 0.1)
-                .endAt(latitude + 0.1);
         final ArrayList<Room> roomsArray = new ArrayList<>();
-
         final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray, this);
         final ListView roomsList = view.findViewById(R.id.roomsPosition);
         roomsList.setAdapter(adapter);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                roomsArray.clear();
-                adapter.clear();
-                for (DataSnapshot roomSnapshot : dataSnapshot.getChildren()) {
-                    Log.i("Found: ", roomSnapshot.child("id").getValue(String.class));
-                    double roomLat = roomSnapshot.child("owner/latitude").getValue(Double.class);
-                    double roomLng = roomSnapshot.child("owner/longitude").getValue(Double.class);
-                    float[] dist = new float[1];
-                    Location.distanceBetween(location.getLatitude(), location.getLongitude(), roomLat, roomLng, dist);
-                    if(dist[0] <= MAX_DIST_IN_METERS) {
-                        User owner = new User(roomSnapshot.child("owner/id").getValue(String.class),
-                                roomLat,
-                                roomLng);
-                        Room room = new Room(roomSnapshot.child("id").getValue(String.class),
-                                roomSnapshot.child("name").getValue(String.class),
-                                roomSnapshot.child("hash").getValue(String.class),
-                                owner);
-                        roomsArray.add(room);
-                    }
-                }
-                adapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("Database Error", databaseError.getMessage());
-            }
-        });
+        DatabaseReference usersRef = database.getReference("UsersNew");
+        DatabaseReference roomsRef = database.getReference("RoomsNew");
+        usersRef.orderByChild("latitude")
+                .startAt(latitude - 0.1)
+                .endAt(latitude + 0.1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        roomsArray.clear();
+                        adapter.clear();
+                        Log.i("Rooms", "Joined room search");
+                        List<CompletableFuture<Void>> roomFutures = new ArrayList<>();
+
+                        for(DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            User user = userSnapshot.getValue(User.class);
+                            if(user != null && user.getOwnedRoomId() != null) {
+                                double roomLat = userSnapshot.child("latitude").getValue(Double.class);
+                                double roomLng = userSnapshot.child("longitude").getValue(Double.class);
+                                float[] dist = new float[1];
+                                Location.distanceBetween(location.getLatitude(), location.getLongitude(), roomLat, roomLng, dist);
+                                if (dist[0] > MAX_DIST_IN_METERS) continue;
+
+                                Log.i("Rooms", "Found room at " + roomLat + ", " + roomLng);
+                                CompletableFuture<Void> roomFuture = new CompletableFuture<>();
+                                roomsRef.child(user.getOwnedRoomId())
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot roomSnapshot) {
+                                                Room room = roomSnapshot.getValue(Room.class);
+                                                roomsArray.add(room);
+                                                roomFuture.complete(null);
+                                            }
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                Log.e("Database Error", databaseError.getMessage());
+                                                roomFuture.completeExceptionally(databaseError.toException()); // Complete with an exception
+                                            }
+                                        });
+                                roomFutures.add(roomFuture);
+                            }
+                        }
+                        // Wait for all CompletableFuture instances to complete
+                        CompletableFuture<Void> allOf = CompletableFuture.allOf(roomFutures.toArray(new CompletableFuture[0]));
+                        allOf.whenComplete((result, throwable) -> {
+                            // This block is executed when all CompletableFuture instances are completed
+                            adapter.notifyDataSetChanged();
+                        });
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) { Log.e("Database Error", databaseError.getMessage()); }
+                });
     }
 }
 
