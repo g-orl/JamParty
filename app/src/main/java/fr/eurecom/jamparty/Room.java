@@ -1,6 +1,7 @@
 package fr.eurecom.jamparty;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Room {
 
@@ -12,6 +13,8 @@ public class Room {
     private long creationTime;  // Date when the room was created
     private int maxParticipants;    // Max number of participants allowed in the room
     private boolean terminated; // Tells if the room is still active, i.e. more users can join
+    private LinkedList<Song> queue;
+    private ArrayList<Song> played;
 
 
     public Room(String id, String name, String hash) {
@@ -23,6 +26,8 @@ public class Room {
         this.creationTime = System.currentTimeMillis();
         this.maxParticipants = 16;
         this.terminated = false;
+        this.queue = new LinkedList<>();
+        this.played = new ArrayList<>();
     }
 
     public Room() {
@@ -75,6 +80,22 @@ public class Room {
 
     public boolean isTerminated() {
         return terminated;
+    }
+
+    public void addToQueue(Song song) { this.queue.push(song); }
+
+    public LinkedList<Song> getQueue() { return this.queue; }
+
+    public Song nextToPlay() {
+        return this.queue.isEmpty() ? null : this.queue.get(0);
+    }
+
+    public Song playNext() {
+        if (this.queue.isEmpty())
+            return null;
+        Song next = this.queue.removeFirst();
+        this.played.add(next);
+        return next;
     }
 
 }
