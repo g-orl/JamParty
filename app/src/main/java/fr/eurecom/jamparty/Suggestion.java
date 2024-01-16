@@ -4,6 +4,10 @@ public class Suggestion extends Song{
     private int votesDown;
     private String userId;
 
+    public Suggestion() {
+    }
+
+
     public Suggestion(String name, String author, String uri, String userId) {
         super(name, author, uri);
         this.userId = userId;
