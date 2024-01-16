@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String REDIRECT_URI = "fr.eurecom.jamparty://logged";
     public static SpotifyAppRemote mSpotifyAppRemote;
     public static final int REQUEST_CODE = 1337;
-    private static final String ROOMS_TABLE = "Rooms";
-    private static final String USERS_TABLE = "Users";
+    public static final String ROOMS_TABLE = "Rooms";
+    public static final String USERS_TABLE = "Users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-        // addDummyData();
+        addDummyData(false);
         setupLocationProvider();
     }
 
