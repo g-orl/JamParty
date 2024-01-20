@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="409dp"
         android:layout_height="729dp"
+        android:layout_marginStart="20dp"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -17,8 +18,10 @@
             android:id="@+id/textView5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Memories"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+            android:fontFamily="sans-serif-black"
+            android:text="MEMORIES"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"

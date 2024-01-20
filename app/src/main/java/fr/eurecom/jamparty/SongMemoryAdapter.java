@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class SongMemoryAdapter extends RecyclerView.Adapter<SongMemoryAdapter.ViewHolder> {
@@ -48,6 +50,8 @@ public class SongMemoryAdapter extends RecyclerView.Adapter<SongMemoryAdapter.Vi
         // here you can set the callback method
         holder.memorySongName.setText(song.getName());
         holder.memorySongArtist.setText(song.getAuthor());
+
+        Glide.with(holder.itemView).load(song.getImage_url()).into(holder.memorySongImage);
         // TODO add album image to song
     }
 
