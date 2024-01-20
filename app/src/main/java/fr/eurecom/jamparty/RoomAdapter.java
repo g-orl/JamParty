@@ -35,7 +35,7 @@ public class RoomAdapter extends ArrayAdapter {
 
 
         joinBtn.setOnClickListener(v -> {
-            caller.enterRoom(room.getName());
+            caller.enterRoom(room.getName(), room.getId());
 
         });
         return convertView;

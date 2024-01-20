@@ -43,9 +43,11 @@ public class HomeFragment extends Fragment {
     public LayoutInflater inflater;
     public ViewGroup container;
 
-    public void enterRoom(String name){
+    public void enterRoom(String name, String id){
         Bundle bundle = new Bundle();
         bundle.putString("room_name", name);
+        bundle.putString("room_id", id);
+
         fragmentController.navigate(R.id.navigation_room, bundle);
     }
 
@@ -96,8 +98,8 @@ public class HomeFragment extends Fragment {
         final ListView roomsList = view.findViewById(R.id.roomsPosition);
         roomsList.setAdapter(adapter);
 
-        DatabaseReference usersRef = database.getReference("UsersNew");
-        DatabaseReference roomsRef = database.getReference("RoomsNew");
+        DatabaseReference usersRef = database.getReference(MainActivity.USERS_TABLE);
+        DatabaseReference roomsRef = database.getReference(MainActivity.ROOMS_TABLE);
         usersRef.orderByChild("latitude")
                 .startAt(latitude - 0.1)
                 .endAt(latitude + 0.1)

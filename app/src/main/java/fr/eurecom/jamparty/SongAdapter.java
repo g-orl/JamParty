@@ -17,6 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,8 +60,29 @@ public class SongAdapter extends ArrayAdapter {
         convertView.findViewById(R.id.songContainer).setOnClickListener(v -> {
             // add the clicked song to the suggestion queue
 
+            FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
+            String roomId = this.caller.getArguments().get("room_id").toString();
+
+
             Toast.makeText(parent.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
-            this.caller.suggestions.add(new Suggestion(song, MainActivity.USER_ID));
+            // TODO substitute with string
+            DatabaseReference rooms = database.getReference("Rooms");
+            rooms.child(roomId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Room room = snapshot.getValue(Room.class);
+                    room.addToQueue(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
+                    // need to send changes to db
+                    rooms.child(roomId).setValue(room);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("Database Error", error.getMessage());
+                }
+            });
+
+            this.caller.suggestions.add(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
             this.caller.suggestionAdapter.notifyDataSetChanged();
 
             editText.setText("");

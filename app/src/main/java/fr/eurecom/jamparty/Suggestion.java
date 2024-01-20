@@ -1,22 +1,17 @@
 package fr.eurecom.jamparty;
 
-public class Suggestion {
-    private Song song;
+public class Suggestion extends Song{
     private int votesDown;
     private String userId;
 
-    public Suggestion(Song song, String userId) {
-        this.song = song;
+    public Suggestion() {
+    }
+
+
+    public Suggestion(String name, String author, String uri, String userId) {
+        super(name, author, uri);
         this.userId = userId;
         this.votesDown = 0;
-    }
-
-    public Song getSong() {
-        return song;
-    }
-
-    public void setSong(Song song) {
-        this.song = song;
     }
 
     public int getVotesDown() {

@@ -12,6 +12,9 @@ public class Song {
         this.uri = uri;
     }
 
+    public Song() {
+    }
+
     public String getAuthor() {
         return author;
     }
