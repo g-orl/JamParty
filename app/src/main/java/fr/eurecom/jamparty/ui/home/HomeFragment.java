@@ -13,8 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import fr.eurecom.jamparty.MainActivity;
+import fr.eurecom.jamparty.MemoryAdapter;
 import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.Room;
 import fr.eurecom.jamparty.RoomAdapter;
@@ -26,7 +29,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -43,13 +45,6 @@ public class HomeFragment extends Fragment {
     public LayoutInflater inflater;
     public ViewGroup container;
 
-    public void enterRoom(String name, String id){
-        Bundle bundle = new Bundle();
-        bundle.putString("room_name", name);
-        bundle.putString("room_id", id);
-
-        fragmentController.navigate(R.id.navigation_room, bundle);
-    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -94,9 +89,13 @@ public class HomeFragment extends Fragment {
         Log.i("LatLng", latitude + " " + longitude);
 
         final ArrayList<Room> roomsArray = new ArrayList<>();
-        final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray, this);
-        final ListView roomsList = view.findViewById(R.id.roomsPosition);
-        roomsList.setAdapter(adapter);
+        final RoomAdapter roomAdapter = new RoomAdapter(roomsArray, this.fragmentController);
+
+        final RecyclerView recyclerView = view.findViewById(R.id.home_room_list);
+        recyclerView.setAdapter(roomAdapter);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);
 
         DatabaseReference usersRef = database.getReference(MainActivity.USERS_TABLE);
         DatabaseReference roomsRef = database.getReference(MainActivity.ROOMS_TABLE);
@@ -107,7 +106,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         roomsArray.clear();
-                        adapter.clear();
+
                         Log.i("Rooms", "Joined room search");
                         List<CompletableFuture<Void>> roomFutures = new ArrayList<>();
 
@@ -143,7 +142,7 @@ public class HomeFragment extends Fragment {
                         CompletableFuture<Void> allOf = CompletableFuture.allOf(roomFutures.toArray(new CompletableFuture[0]));
                         allOf.whenComplete((result, throwable) -> {
                             // This block is executed when all CompletableFuture instances are completed
-                            adapter.notifyDataSetChanged();
+                            roomAdapter.notifyDataSetChanged();
                         });
                     }
                     @Override

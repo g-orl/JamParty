@@ -25,8 +25,8 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
 
         public ViewHolder(View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.song_image);
-            textView = itemView.findViewById(R.id.song_name);
+            imageView = itemView.findViewById(R.id.room_image);
+            textView = itemView.findViewById(R.id.room_name);
         }
     }
 

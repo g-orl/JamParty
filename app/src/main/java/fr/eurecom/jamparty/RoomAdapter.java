@@ -1,43 +1,68 @@
 package fr.eurecom.jamparty;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.FragmentNavigator;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import fr.eurecom.jamparty.ui.fragments.RoomFragment;
-import fr.eurecom.jamparty.ui.home.HomeFragment;
 
-public class RoomAdapter extends ArrayAdapter {
-    private HomeFragment caller;
+public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
+    private List<Room> rooms;
+    private NavController fragmentController;
 
-    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts, HomeFragment homeFragment) {
-        super(context, 0, contacts);
-        this.caller = homeFragment;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView textView;
+        public ImageView imageView;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            textView = itemView.findViewById(R.id.room_name);
+            imageView = itemView.findViewById(R.id.room_image);
+        }
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Room room = (Room) getItem(position);
-        if(convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_room, parent, false);
-        }
-        TextView nameTxt = convertView.findViewById(R.id.roomNameTxt);
-        Button joinBtn = convertView.findViewById(R.id.joinBtn);
+    public RoomAdapter(List<Room> rooms, NavController fragmentController) {
+        this.rooms = rooms;
+        this.fragmentController = fragmentController;
+    }
 
-        nameTxt.setText(room.getName());
+    @NonNull
+    @Override
+    public RoomAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.memory_room, parent, false);
+        return new ViewHolder(view);
+    }
 
+    @Override
+    public void onBindViewHolder(@NonNull RoomAdapter.ViewHolder holder, int position) {
+        Room room = rooms.get(position);
+        // here you can set the callback method
+        holder.textView.setText(room.getName());
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO implement join functionality
+                Bundle bundle = new Bundle();
+                bundle.putString("room_name", room.getName());
+                bundle.putString("room_id", room.getId());
 
-        joinBtn.setOnClickListener(v -> {
-            caller.enterRoom(room.getName(), room.getId());
-
+                fragmentController.navigate(R.id.navigation_room, bundle);
+            }
         });
-        return convertView;
+    }
+
+    @Override
+    public int getItemCount() {
+        return rooms.size();
     }
 }
