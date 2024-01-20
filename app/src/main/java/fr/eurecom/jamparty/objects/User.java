@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects;
 
 import androidx.annotation.Nullable;
 

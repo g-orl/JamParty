@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects;
 
 public class Suggestion extends Song{
     private int votesDown;
@@ -21,6 +21,10 @@ public class Suggestion extends Song{
     public void setVotesDown(int votesDown) {
         this.votesDown = votesDown;
     }
+
+    public void downvote() { votesDown++; }
+
+    public void upvote() { votesDown--; }
 
     public String getUserId() {
         return userId;

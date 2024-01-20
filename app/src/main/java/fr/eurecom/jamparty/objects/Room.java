@@ -1,9 +1,14 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import fr.eurecom.jamparty.MainActivity;
 
 public class Room {
 
@@ -89,8 +94,6 @@ public class Room {
 
     public int getNumParticipants() { return userIds.size(); }
 
-    public void addToQueue(Song song) { this.queue.push(song); }
-
     public LinkedList<Suggestion> getQueue() { return this.queue; }
 
     public Suggestion nextToPlay() {
@@ -108,5 +111,12 @@ public class Room {
     public void setQueue(ArrayList<Suggestion> queue) { this.queue = new LinkedList<>(queue); }
 
     public void setPlayed(ArrayList<Song> played) { this.played = played; }
+
+    public void pushSongsToDb() {
+        FirebaseDatabase db = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
+        DatabaseReference roomsRef = db.getReference(MainActivity.ROOMS_TABLE);
+        roomsRef.child(this.id+"/queue").setValue(this.queue);
+        roomsRef.child(this.id+"/played").setValue(this.played);
+    }
 
 }

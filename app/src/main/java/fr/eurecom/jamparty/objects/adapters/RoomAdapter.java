@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,15 +12,18 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 
-import fr.eurecom.jamparty.ui.fragments.RoomFragment;
+import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 public class RoomAdapter extends ArrayAdapter {
     private HomeFragment caller;
+    private boolean enableJoin;
 
-    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts, HomeFragment homeFragment) {
+    public RoomAdapter(@NonNull Context context, ArrayList<Room> contacts, HomeFragment homeFragment, boolean enableJoin) {
         super(context, 0, contacts);
         this.caller = homeFragment;
+        this.enableJoin = enableJoin;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -31,9 +34,9 @@ public class RoomAdapter extends ArrayAdapter {
         TextView nameTxt = convertView.findViewById(R.id.roomNameTxt);
         Button joinBtn = convertView.findViewById(R.id.joinBtn);
 
+        joinBtn.setEnabled(enableJoin);
+
         nameTxt.setText(room.getName());
-
-
         joinBtn.setOnClickListener(v -> {
             caller.enterRoom(room.getName(), room.getId());
 

@@ -1,32 +1,42 @@
 package fr.eurecom.jamparty.ui.home;
 
-import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
-import fr.eurecom.jamparty.Room;
-import fr.eurecom.jamparty.RoomAdapter;
-import fr.eurecom.jamparty.User;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.adapters.RoomAdapter;
+import fr.eurecom.jamparty.objects.User;
 import fr.eurecom.jamparty.databinding.FragmentHomeBinding;
 import fr.eurecom.jamparty.ui.fragments.CreateFragment;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -34,14 +44,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class HomeFragment extends Fragment {
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+    private FusedLocationProviderClient fusedLocationClient;
     private Location location;
     private FirebaseDatabase database;
     public static final double MAX_DIST_IN_METERS = 1000;
-    public static String TAG = "JoinRoomDialog";
+    public static String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
     public NavController fragmentController;
     public LayoutInflater inflater;
     public ViewGroup container;
+    private View view;
 
     public void enterRoom(String name, String id){
         Bundle bundle = new Bundle();
@@ -55,17 +69,11 @@ public class HomeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         this.inflater = inflater;
         this.container = container;
-
         this.fragmentController = NavHostFragment.findNavController(this);
-
-        Activity activity = getActivity();
-        if (activity != null && activity instanceof MainActivity)
-            this.location = ((MainActivity) getActivity()).getLocation();
         this.database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
 
         binding.buttonCreateRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,8 +81,41 @@ public class HomeFragment extends Fragment {
                 new CreateFragment().show(getChildFragmentManager(), CreateFragment.TAG);
             }
         });
+        setupLocationProvider();
         return root;
     }
+
+    private void setupLocationProvider() {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Location Permission: ", "To be checked");
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        } else
+            Log.i("Location Permission: ", "GRANTED");
+        locationRequest = new LocationRequest.Builder(10000)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build();
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                for (Location loc : locationResult.getLocations()) {
+                    if(location == null || loc.distanceTo(location) > 5) {
+                        location = loc;
+                        onLocationChanged();
+                    }
+                }
+            }
+        };
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper());
+    }
+
 
     @Override
     public void onDestroyView() {
@@ -85,16 +126,17 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        this.view = view;
+    }
 
-        if (location == null)
-            return;
-
+    public void onLocationChanged() {
+        ProgressBar spinner = view.findViewById(R.id.progressBar);
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         Log.i("LatLng", latitude + " " + longitude);
 
         final ArrayList<Room> roomsArray = new ArrayList<>();
-        final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray, this);
+        final RoomAdapter adapter = new RoomAdapter(requireContext(), roomsArray, this, MainActivity.isLoggedIn());
         final ListView roomsList = view.findViewById(R.id.roomsPosition);
         roomsList.setAdapter(adapter);
 
@@ -144,11 +186,65 @@ public class HomeFragment extends Fragment {
                         allOf.whenComplete((result, throwable) -> {
                             // This block is executed when all CompletableFuture instances are completed
                             adapter.notifyDataSetChanged();
+                            spinner.setVisibility(View.GONE);
                         });
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) { Log.e("Database Error", databaseError.getMessage()); }
                 });
+
     }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Location Permission: ", "To be checked");
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        } else
+            Log.i("Location Permission: ", "GRANTED");
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper());
+        if (location != null)
+            onLocationChanged();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Location Permission: ", "To be checked");
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        } else
+            Log.i("Location Permission: ", "GRANTED");
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper());
+        if (location != null)
+            onLocationChanged();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
 }
 

@@ -8,13 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -30,22 +26,20 @@ import java.util.ArrayList;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
-import fr.eurecom.jamparty.Room;
-import fr.eurecom.jamparty.Song;
-import fr.eurecom.jamparty.SongAdapter;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.Song;
+import fr.eurecom.jamparty.objects.adapters.SongAdapter;
 import fr.eurecom.jamparty.SpotifyApiTask;
-import fr.eurecom.jamparty.Suggestion;
-import fr.eurecom.jamparty.SuggestionAdapter;
+import fr.eurecom.jamparty.objects.Suggestion;
+import fr.eurecom.jamparty.objects.adapters.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
-import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 public class RoomFragment  extends Fragment {
     private ArrayList<Song> songs;
     public ArrayList<Suggestion> suggestions;
-    public SuggestionAdapter suggestionAdapter;
-    private SongAdapter adapter;
     private FragmentRoomBinding binding;
     public NavController fragmentController;
+    private SuggestionAdapter suggestionAdapter;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -62,13 +56,21 @@ public class RoomFragment  extends Fragment {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
         DatabaseReference rooms = database.getReference("Rooms");
-        rooms.child(getArguments().getString("room_id")).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        SongAdapter adapter = new SongAdapter(getContext(), songs, this);
+        suggestionAdapter = new SuggestionAdapter(getContext(), suggestions, this);
+        binding.songList.setAdapter(adapter);
+        binding.suggestions.setAdapter(suggestionAdapter);
+
+        String room_id = getArguments().getString("room_id");
+
+        rooms.child(room_id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Room room = snapshot.getValue(Room.class);
+                suggestionAdapter.setRoom(room);
                 suggestions.addAll(room.getQueue());
-                // need to send changes to db
-                rooms.child(getArguments().getString("room_id")).setValue(room);
+                suggestionAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -76,12 +78,6 @@ public class RoomFragment  extends Fragment {
                 Log.e("Database Error", error.getMessage());
             }
         });
-
-        adapter = new SongAdapter(getContext(), songs, this);
-        suggestionAdapter = new SuggestionAdapter(getContext(), suggestions, this);
-
-        binding.songList.setAdapter(adapter);
-        binding.suggestions.setAdapter(suggestionAdapter);
 
         /*ImageButton playButton = binding.playButton;
         ImageButton backButton = binding.backButton;
@@ -180,6 +176,11 @@ public class RoomFragment  extends Fragment {
         binding.textRoomName.setText(getArguments().getString("room_name"));
 
         return root;
+    }
+
+    public void addSuggestion(Suggestion suggestion) {
+        suggestions.add(suggestion);
+        suggestionAdapter.notifyDataSetChanged();
     }
 
     @Override

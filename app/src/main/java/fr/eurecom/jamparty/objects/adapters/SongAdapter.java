@@ -1,8 +1,5 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects.adapters;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,14 +20,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.MainActivity;
+import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.Song;
+import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.ui.fragments.RoomFragment;
-import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 
 public class SongAdapter extends ArrayAdapter {
@@ -71,9 +68,13 @@ public class SongAdapter extends ArrayAdapter {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Room room = snapshot.getValue(Room.class);
-                    room.addToQueue(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
-                    // need to send changes to db
-                    rooms.child(roomId).setValue(room);
+                    if(room != null) {
+                        room.addToQueue(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
+                        // need to send changes to db
+                        rooms.child(roomId).setValue(room);
+                    } else {
+                        Log.e("Room", "Room is null when adding a song");
+                    }
                 }
 
                 @Override
@@ -82,8 +83,7 @@ public class SongAdapter extends ArrayAdapter {
                 }
             });
 
-            this.caller.suggestions.add(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
-            this.caller.suggestionAdapter.notifyDataSetChanged();
+            this.caller.addSuggestion(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
 
             editText.setText("");
             this.clear();

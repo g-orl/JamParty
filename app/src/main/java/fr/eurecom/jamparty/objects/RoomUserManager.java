@@ -1,6 +1,7 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects;
 
-import kotlin.NotImplementedError;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.User;
 
 public class RoomUserManager {
     public static void userJoinRoom(User user, Room room, boolean owner) {
