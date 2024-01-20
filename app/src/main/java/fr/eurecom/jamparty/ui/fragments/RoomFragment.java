@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,10 +78,14 @@ public class RoomFragment  extends Fragment {
             }
         });
 
-        adapter = new SongAdapter(getContext(), songs, this);
+        adapter = new SongAdapter(songs, this);
         suggestionAdapter = new SuggestionAdapter(getContext(), suggestions, this);
 
         binding.songList.setAdapter(adapter);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        binding.songList.setLayoutManager(layoutManager);
+
         binding.suggestions.setAdapter(suggestionAdapter);
 
         /*ImageButton playButton = binding.playButton;
@@ -112,7 +117,6 @@ public class RoomFragment  extends Fragment {
 
                 // clear the previous songs present in the array
                 songs.clear();
-                adapter.clear();
 
                 String textTyped = binding.editTextText.getText().toString();
                 if(textTyped.length() == 0) return;
