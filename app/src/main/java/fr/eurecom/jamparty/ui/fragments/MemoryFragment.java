@@ -1,97 +1,70 @@
 package fr.eurecom.jamparty.ui.fragments;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import fr.eurecom.jamparty.MemoryAdapter;
-import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.Room;
-import fr.eurecom.jamparty.Song;
 import fr.eurecom.jamparty.SongMemoryAdapter;
-import fr.eurecom.jamparty.Suggestion;
+import fr.eurecom.jamparty.databinding.FragmentMemoryBinding;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link MemoryFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class MemoryFragment extends DialogFragment {
+public class MemoryFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    public static String TAG = "MemoryRoomDialog";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private Room room;
+    private FragmentMemoryBinding binding;
+    public NavController fragmentController;
 
     public MemoryFragment() {
         // Required empty public constructor
     }
 
-    public MemoryFragment(Room room){
-        this.room = room;
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MemoryFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MemoryFragment newInstance(String param1, String param2) {
-        MemoryFragment fragment = new MemoryFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        Bundle arguments = getArguments();
+
+        if(arguments != null){
+            // TODO check compatibility of android!
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                this.room = arguments.getParcelable("room", Room.class);
+            }
         }
+
     }
 
-
-
-    @NonNull
+    @Nullable
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        System.out.println("Dialog created");
-        LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.fragment_memory, null);
-        TextView memoryRoomName = view.findViewById(R.id.memory_room_name);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        this.binding = FragmentMemoryBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+        this.fragmentController = NavHostFragment.findNavController(this);
+
+        Log.i("BACK STACK", fragmentController.getCurrentBackStackEntry().toString());
+
+
+        TextView memoryRoomName = binding.memoryRoomName;
         memoryRoomName.setText(room.getName());
-        RecyclerView recyclerView = view.findViewById(R.id.memory_song_list);
+        RecyclerView recyclerView = binding.memorySongList;
         SongMemoryAdapter songMemoryAdapter = new SongMemoryAdapter(this.room.getQueue(), getChildFragmentManager());
 
         recyclerView.setAdapter(songMemoryAdapter);
@@ -99,17 +72,47 @@ public class MemoryFragment extends DialogFragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .setPositiveButton(getString(R.string.share_button), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == Dialog.BUTTON_POSITIVE){
-                            // user wants to create the room
-                            // TODO open dialog to share the memories to social media
-                        }
-                    }
-                })
-                .create();
+        binding.memoryShareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
+
+                binding.memoryShareButton.setVisibility(View.GONE);
+
+                // Create a Canvas with the Bitmap
+                Canvas canvas = new Canvas(bitmap);
+
+                canvas.drawColor(Color.WHITE);
+                // Draw the view onto the Canvas
+                root.draw(canvas);
+
+                // now bitmap containes the image
+
+                String imagePath = MediaStore.Images.Media.insertImage(
+                        requireContext().getContentResolver(),
+                        bitmap.copy(Bitmap.Config.ARGB_8888, true),
+                        String.format("Memory-Room-%s", room.getId()),
+                        "ImageDescription"
+                );
+
+                binding.memoryShareButton.setVisibility(View.VISIBLE);
+
+                // Create an intent to share the image
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("image/*");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
+
+                // Create a chooser to allow the user to pick the sharing app
+                Intent chooserIntent = Intent.createChooser(shareIntent, "Share Image");
+
+                // Start the chooser
+                startActivity(chooserIntent);
+            }
+        });
+
+        return root;
     }
+
+
+
 }

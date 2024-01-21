@@ -1,5 +1,6 @@
 package fr.eurecom.jamparty;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -17,7 +19,7 @@ import fr.eurecom.jamparty.ui.fragments.MemoryFragment;
 
 public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder> {
     private List<Room> rooms;
-    private FragmentManager fragmentManager;
+    private NavController controller;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView imageView;
@@ -30,9 +32,9 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         }
     }
 
-    public MemoryAdapter(List<Room> rooms, FragmentManager fragmentManager) {
+    public MemoryAdapter(List<Room> rooms, NavController controller) {
         this.rooms = rooms;
-        this.fragmentManager = fragmentManager;
+        this.controller = controller;
     }
 
     @NonNull
@@ -50,8 +52,11 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MemoryFragment(room).show(fragmentManager, MemoryFragment.TAG);
-                Toast.makeText(v.getContext(), String.format("Clicked on room %s", room.getName()), Toast.LENGTH_SHORT).show();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("room", room);
+                controller.navigate(R.id.navigation_memory, bundle);
+
+                // Toast.makeText(v.getContext(), String.format("Clicked on room %s", room.getName()), Toast.LENGTH_SHORT).show();
             }
         });
     }

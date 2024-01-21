@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,8 +32,8 @@ import fr.eurecom.jamparty.databinding.FragmentDashboardBinding;
 
 
 public class DashboardFragment extends Fragment {
-
     private FragmentDashboardBinding binding;
+    private NavController controller;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -40,10 +42,11 @@ public class DashboardFragment extends Fragment {
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        controller = NavHostFragment.findNavController(this);
 
         RecyclerView recyclerView = binding.recyclerView;
         ArrayList<Room> rooms = new ArrayList<>();
-        MemoryAdapter memoryAdapter = new MemoryAdapter(rooms, getChildFragmentManager());
+        MemoryAdapter memoryAdapter = new MemoryAdapter(rooms, controller);
 
         recyclerView.setAdapter(memoryAdapter);
 
