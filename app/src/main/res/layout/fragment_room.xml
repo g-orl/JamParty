@@ -75,10 +75,10 @@
             android:text="Pick next songs"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/suggestions"
             android:layout_width="match_parent"
-            android:layout_height="194dp" />
+            android:layout_height="200dp" />
 
         <!--<LinearLayout
                 android:id="@+id/playerArea"
