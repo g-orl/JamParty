@@ -1,5 +1,7 @@
 package fr.eurecom.jamparty.ui.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,11 +10,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +42,7 @@ import fr.eurecom.jamparty.SpotifyApiTask;
 import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.objects.adapters.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
+import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 public class RoomFragment  extends Fragment {
     private ArrayList<Song> songs;
@@ -40,6 +50,8 @@ public class RoomFragment  extends Fragment {
     private FragmentRoomBinding binding;
     public NavController fragmentController;
     private SuggestionAdapter suggestionAdapter;
+
+    private PopupWindow popupWindow;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -79,6 +91,19 @@ public class RoomFragment  extends Fragment {
             }
         });
 
+        adapter = new SongAdapter(songs, this);
+        suggestionAdapter = new SuggestionAdapter(suggestions, this);
+
+        binding.songList.setAdapter(adapter);
+        binding.suggestions.setAdapter(suggestionAdapter);
+
+        LinearLayoutManager songLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        binding.songList.setLayoutManager(songLayoutManager);
+
+        LinearLayoutManager suggestionLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        binding.suggestions.setLayoutManager(suggestionLayoutManager);
+
+
         /*ImageButton playButton = binding.playButton;
         ImageButton backButton = binding.backButton;
         ImageButton nextButton = binding.nextButton;*/
@@ -108,7 +133,6 @@ public class RoomFragment  extends Fragment {
 
                 // clear the previous songs present in the array
                 songs.clear();
-                adapter.clear();
 
                 String textTyped = binding.editTextText.getText().toString();
                 if(textTyped.length() == 0) return;
@@ -187,5 +211,31 @@ public class RoomFragment  extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void showLongPressDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Down Vote Song?")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getContext(), "Deleted song from queue", Toast.LENGTH_SHORT);
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    public void showPopupWindow(View anchorView) {
+        // Create a popup window
+        View popupView = getLayoutInflater().inflate(R.layout.suggestion_popup, null);
+
+        // Create and configure the popup window
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.popup_background));
+
+        // Show the popup window at the specified location
+        popupWindow.showAsDropDown(anchorView, 0, -anchorView.getHeight());
     }
 }

@@ -1,6 +1,9 @@
 package fr.eurecom.jamparty.objects;
 
-public class Song {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Song implements Parcelable {
     private String name;
     private String author;
     private String uri;
@@ -45,5 +48,37 @@ public class Song {
 
     public void setImage_url(String image_url) {
         this.image_url = image_url;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(author);
+        dest.writeString(uri);
+        dest.writeString(image_url);
+    }
+
+    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
+
+    private Song(Parcel in) {
+        name = in.readString();
+        author = in.readString();
+        uri = in.readString();
+        image_url = in.readString();
     }
 }

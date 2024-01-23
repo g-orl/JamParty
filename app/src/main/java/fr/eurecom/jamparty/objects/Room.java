@@ -5,12 +5,15 @@ import androidx.annotation.Nullable;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import fr.eurecom.jamparty.MainActivity;
-
-public class Room {
+public class Room implements Parcelable {
 
     private String id;      // id of the room
     private String name;    // name of the room
@@ -118,5 +121,52 @@ public class Room {
         roomsRef.child(this.id+"/queue").setValue(this.queue);
         roomsRef.child(this.id+"/played").setValue(this.played);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(hash);
+        dest.writeString(ownerId);
+        dest.writeStringList(userIds);
+        dest.writeLong(creationTime);
+        dest.writeInt(maxParticipants);
+        dest.writeByte((byte) (terminated ? 1 : 0));
+        dest.writeTypedList(queue);
+        dest.writeTypedList(played);
+    }
+
+    public static final Parcelable.Creator<Room> CREATOR = new Parcelable.Creator<Room>() {
+        @Override
+        public Room createFromParcel(Parcel in) {
+            return new Room(in);
+        }
+
+        @Override
+        public Room[] newArray(int size) {
+            return new Room[size];
+        }
+    };
+
+    private Room(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        hash = in.readString();
+        ownerId = in.readString();
+        userIds = in.createStringArrayList();
+        creationTime = in.readLong();
+        maxParticipants = in.readInt();
+        terminated = in.readByte() != 0;
+        queue = new LinkedList<>();
+        in.readTypedList(queue, Suggestion.CREATOR);
+        played = new ArrayList<>();
+        in.readTypedList(played, Song.CREATOR);
+    }
+
 
 }

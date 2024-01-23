@@ -1,5 +1,8 @@
-package fr.eurecom.jamparty.objects.adapters;
+package fr.eurecom.jamparty;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
@@ -29,39 +35,54 @@ import fr.eurecom.jamparty.objects.Song;
 import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.ui.fragments.RoomFragment;
 
-
-public class SongAdapter extends ArrayAdapter {
-
+public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
+    private List<Song> songs;
     private RoomFragment caller;
 
-    public SongAdapter(@NonNull Context context, ArrayList<Song> songs, RoomFragment caller) {
-        super(context, 0, songs);
-        this.caller = caller;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public ImageView memorySongImage;
+        public TextView memorySongName;
+        public TextView memorySongArtist;
 
+        public ViewHolder(View itemView) {
+            super(itemView);
+            memorySongName = itemView.findViewById(R.id.memory_song_name);
+            memorySongArtist = itemView.findViewById(R.id.memory_song_artist);
+            memorySongImage = itemView.findViewById(R.id.memory_song_image);
+        }
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Song song = (Song) getItem(position);
-        if(convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_song, parent, false);
-        }
-        TextView nameTxt = convertView.findViewById(R.id.songName);
-        TextView authorTxt = convertView.findViewById(R.id.songAuthor);
-        ImageView image = convertView.findViewById(R.id.songImage);
-        EditText editText = caller.getView().findViewById(R.id.editTextText);
+    public SongAdapter(List<Song> songs, RoomFragment caller) {
+        this.songs = songs;
+        this.caller = caller;
+    }
 
-        nameTxt.setText(song.getName());
-        authorTxt.setText(song.getAuthor());
-        Glide.with(caller.getView()).load(song.getImage_url()).into(image);
-
-        convertView.findViewById(R.id.songContainer).setOnClickListener(v -> {
-            // add the clicked song to the suggestion queue
-
-            FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
-            String roomId = this.caller.getArguments().get("room_id").toString();
+    @NonNull
+    @Override
+    public SongAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.memory_song, parent, false);
+        return new ViewHolder(view);
+    }
 
 
-            Toast.makeText(parent.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
+    @Override
+    public void onBindViewHolder(@NonNull SongAdapter.ViewHolder holder, int position) {
+        Song song = songs.get(position);
+        // here you can set the callback method
+        holder.memorySongName.setText(song.getName());
+        holder.memorySongArtist.setText(song.getAuthor());
+
+        Glide.with(holder.itemView).load(song.getImage_url()).into(holder.memorySongImage);
+        // TODO add album image to song
+
+        holder.memorySongImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
+                String roomId = caller.getArguments().get("room_id").toString();
+
+
+            Toast.makeText(caller.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
             // TODO substitute with string
             DatabaseReference rooms = database.getReference("Rooms");
             rooms.child(roomId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -77,19 +98,20 @@ public class SongAdapter extends ArrayAdapter {
                     }
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e("Database Error", error.getMessage());
-                }
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("Database Error", error.getMessage());
+                    }
+                });
 
-            this.caller.addSuggestion(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
-
-            editText.setText("");
-            this.clear();
+                caller.suggestions.add(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
+                caller.suggestionAdapter.notifyDataSetChanged();
+            }
         });
-
-        return convertView;
     }
 
+    @Override
+    public int getItemCount() {
+        return songs.size();
+    }
 }
