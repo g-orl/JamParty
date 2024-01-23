@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -22,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import fr.eurecom.jamparty.MainActivity;
-import fr.eurecom.jamparty.MemoryAdapter;
 import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.adapters.RoomAdapter;
@@ -40,7 +38,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -133,7 +130,7 @@ public class HomeFragment extends Fragment {
         Log.i("LatLng", latitude + " " + longitude);
 
         final ArrayList<Room> roomsArray = new ArrayList<>();
-        final RoomAdapter roomAdapter = new RoomAdapter(roomsArray, this.fragmentController);
+        final RoomAdapter roomAdapter = new RoomAdapter(roomsArray, this.fragmentController, MainActivity.isLoggedIn());
 
         final RecyclerView recyclerView = view.findViewById(R.id.home_room_list);
         recyclerView.setAdapter(roomAdapter);
@@ -187,6 +184,7 @@ public class HomeFragment extends Fragment {
                         allOf.whenComplete((result, throwable) -> {
                             // This block is executed when all CompletableFuture instances are completed
                             roomAdapter.notifyDataSetChanged();
+                            spinner.setVisibility(View.GONE);
                         });
                     }
                     @Override

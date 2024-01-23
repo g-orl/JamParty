@@ -9,10 +9,11 @@ public class Song implements Parcelable {
     private String uri;
     private String image_url;
 
-    public Song(String name, String author, String uri) {
+    public Song(String name, String author, String uri, String image_url) {
         this.name = name;
         this.author = author;
         this.uri = uri;
+        this.image_url = image_url;
     }
 
     public Song() {
@@ -63,7 +64,7 @@ public class Song implements Parcelable {
         dest.writeString(image_url);
     }
 
-    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
+    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator() {
         @Override
         public Song createFromParcel(Parcel in) {
             return new Song(in);

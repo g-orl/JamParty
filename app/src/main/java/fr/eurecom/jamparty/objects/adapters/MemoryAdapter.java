@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects.adapters;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -6,16 +6,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import fr.eurecom.jamparty.ui.fragments.MemoryFragment;
+import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.objects.Room;
 
 public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder> {
     private List<Room> rooms;

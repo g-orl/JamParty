@@ -62,8 +62,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                 // TODO implement join functionality
                 if(enableJoin) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("room_name", room.getName());
-                    bundle.putString("room_id", room.getId());
+                    bundle.putParcelable("room", room);
 
                     fragmentController.navigate(R.id.navigation_room, bundle);
                 }

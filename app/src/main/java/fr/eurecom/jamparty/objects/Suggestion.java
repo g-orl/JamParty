@@ -11,8 +11,8 @@ public class Suggestion extends Song implements Parcelable {
     }
 
 
-    public Suggestion(String name, String author, String uri, String userId) {
-        super(name, author, uri);
+    public Suggestion(String name, String author, String uri, String imageUrl, String userId) {
+        super(name, author, uri, imageUrl);
         this.userId = userId;
         this.votesDown = 0;
     }

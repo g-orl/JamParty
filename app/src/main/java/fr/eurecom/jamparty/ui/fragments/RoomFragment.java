@@ -45,43 +45,42 @@ import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
 public class RoomFragment  extends Fragment {
-    private ArrayList<Song> songs;
-    public ArrayList<Suggestion> suggestions;
+    public ArrayList<Song> songs;
     private FragmentRoomBinding binding;
     public NavController fragmentController;
-    private SuggestionAdapter suggestionAdapter;
-
+    public SuggestionAdapter suggestionAdapter;
+    public Room room;
     private PopupWindow popupWindow;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-
+        this.songs = new ArrayList<>();
         binding = FragmentRoomBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        this.fragmentController = NavHostFragment.findNavController(this);
+        this.room = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            this.room = getArguments().getParcelable("room", Room.class);
+        }
 
-        songs = new ArrayList<>();
-        suggestions = new ArrayList<>();
+        this.fragmentController = NavHostFragment.findNavController(this);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
         DatabaseReference rooms = database.getReference("Rooms");
 
-        SongAdapter adapter = new SongAdapter(getContext(), songs, this);
-        suggestionAdapter = new SuggestionAdapter(getContext(), suggestions, this);
+        SongAdapter adapter = new SongAdapter(songs, this);
+        suggestionAdapter = new SuggestionAdapter(room.getQueue(), this);
         binding.songList.setAdapter(adapter);
         binding.suggestions.setAdapter(suggestionAdapter);
 
-        String room_id = getArguments().getString("room_id");
-
-        rooms.child(room_id).addListenerForSingleValueEvent(new ValueEventListener() {
+        rooms.child(this.room.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Room room = snapshot.getValue(Room.class);
                 suggestionAdapter.setRoom(room);
-                suggestions.addAll(room.getQueue());
+
                 suggestionAdapter.notifyDataSetChanged();
             }
 
@@ -91,12 +90,6 @@ public class RoomFragment  extends Fragment {
             }
         });
 
-        adapter = new SongAdapter(songs, this);
-        suggestionAdapter = new SuggestionAdapter(suggestions, this);
-
-        binding.songList.setAdapter(adapter);
-        binding.suggestions.setAdapter(suggestionAdapter);
-
         LinearLayoutManager songLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.songList.setLayoutManager(songLayoutManager);
 
@@ -104,9 +97,6 @@ public class RoomFragment  extends Fragment {
         binding.suggestions.setLayoutManager(suggestionLayoutManager);
 
 
-        /*ImageButton playButton = binding.playButton;
-        ImageButton backButton = binding.backButton;
-        ImageButton nextButton = binding.nextButton;*/
         Button exitButton = binding.buttonExit;
 
         exitButton.setOnClickListener(new View.OnClickListener() {
@@ -156,9 +146,9 @@ public class RoomFragment  extends Fragment {
                                     temp = new Song(
                                             jsonNode.get("tracks").get("items").get(i).get("name").asText(),
                                             jsonNode.get("tracks").get("items").get(i).get("artists").get(0).get("name").asText(),
-                                            jsonNode.get("tracks").get("items").get(i).get("uri").asText());
-
-                                    temp.setImage_url(jsonNode.get("tracks").get("items").get(i).get("album").get("images").get(0).get("url").asText());
+                                            jsonNode.get("tracks").get("items").get(i).get("uri").asText(),
+                                            jsonNode.get("tracks").get("items").get(i).get("album").get("images").get(0).get("url").asText()
+                                            );
 
                                     songs.add(temp);
                                 }
@@ -197,14 +187,9 @@ public class RoomFragment  extends Fragment {
             }
         });*/
 
-        binding.textRoomName.setText(getArguments().getString("room_name"));
+        binding.textRoomName.setText(room.getName());
 
         return root;
-    }
-
-    public void addSuggestion(Suggestion suggestion) {
-        suggestions.add(suggestion);
-        suggestionAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -213,20 +198,8 @@ public class RoomFragment  extends Fragment {
         binding = null;
     }
 
-    public void showLongPressDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Down Vote Song?")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getContext(), "Deleted song from queue", Toast.LENGTH_SHORT);
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }
 
-    public void showPopupWindow(View anchorView) {
+    public void showPopupWindow(View anchorView, Suggestion suggestion) {
         // Create a popup window
         View popupView = getLayoutInflater().inflate(R.layout.suggestion_popup, null);
 
@@ -237,5 +210,22 @@ public class RoomFragment  extends Fragment {
 
         // Show the popup window at the specified location
         popupWindow.showAsDropDown(anchorView, 0, -anchorView.getHeight());
+
+        popupView.findViewById(R.id.dislike_button).setOnClickListener(new View.OnClickListener() {
+            private boolean isDisliked = false;
+            @Override
+            public void onClick(View v) {
+                // dislike the song
+                if (isDisliked) {
+                    suggestion.upvote();
+                    popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.thumb_nobg));
+                } else {
+                    suggestion.downvote();
+                    popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.thumb_red_nobg));
+                }
+                isDisliked = !isDisliked;
+                room.pushSongsToDb();
+            }
+        });
     }
 }

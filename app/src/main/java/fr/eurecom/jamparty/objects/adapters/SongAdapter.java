@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -79,32 +79,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
-                String roomId = caller.getArguments().get("room_id").toString();
 
+                Toast.makeText(caller.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
+                // TODO substitute with string
+                DatabaseReference rooms = database.getReference("Rooms");
+                rooms.child(caller.room.getId()).setValue(caller.room);
 
-            Toast.makeText(caller.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
-            // TODO substitute with string
-            DatabaseReference rooms = database.getReference("Rooms");
-            rooms.child(roomId).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Room room = snapshot.getValue(Room.class);
-                    if(room != null) {
-                        room.addToQueue(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
-                        // need to send changes to db
-                        rooms.child(roomId).setValue(room);
-                    } else {
-                        Log.e("Room", "Room is null when adding a song");
-                    }
-                }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("Database Error", error.getMessage());
-                    }
-                });
-
-                caller.suggestions.add(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), MainActivity.USER_ID));
+                caller.room.addToQueue(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), song.getImage_url(), MainActivity.USER_ID));
+                caller.room.pushSongsToDb();
                 caller.suggestionAdapter.notifyDataSetChanged();
             }
         });

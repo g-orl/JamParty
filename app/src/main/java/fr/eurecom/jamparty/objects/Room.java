@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+
+import fr.eurecom.jamparty.MainActivity;
 
 public class Room implements Parcelable {
 
@@ -23,7 +26,7 @@ public class Room implements Parcelable {
     private long creationTime;  // Date when the room was created
     private int maxParticipants;    // Max number of participants allowed in the room
     private boolean terminated; // Tells if the room is still active, i.e. more users can join
-    private LinkedList<Suggestion> queue;
+    private ArrayList<Suggestion> queue;
     private ArrayList<Song> played;
 
 
@@ -36,12 +39,12 @@ public class Room implements Parcelable {
         this.creationTime = System.currentTimeMillis();
         this.maxParticipants = 16;
         this.terminated = false;
-        this.queue = new LinkedList<>();
+        this.queue = new ArrayList<>();
         this.played = new ArrayList<>();
     }
 
     public Room() {
-        this.queue = new LinkedList<>();
+        this.queue = new ArrayList<>();
         this.played = new ArrayList<>();
     }
 
@@ -93,11 +96,11 @@ public class Room implements Parcelable {
         return terminated;
     }
 
-    public void addToQueue(Suggestion song) { this.queue.push(song); }
+    public void addToQueue(Suggestion song) { this.queue.add(song); }
 
     public int getNumParticipants() { return userIds.size(); }
 
-    public LinkedList<Suggestion> getQueue() { return this.queue; }
+    public ArrayList<Suggestion> getQueue() { return this.queue; }
 
     public Suggestion nextToPlay() {
         return this.queue.isEmpty() ? null : this.queue.get(0);
@@ -106,12 +109,12 @@ public class Room implements Parcelable {
     public Suggestion playNext() {
         if (this.queue.isEmpty())
             return null;
-        Suggestion next = this.queue.removeFirst();
+        Suggestion next = this.queue.remove(0);
         this.played.add(next);
         return next;
     }
 
-    public void setQueue(ArrayList<Suggestion> queue) { this.queue = new LinkedList<>(queue); }
+    public void setQueue(ArrayList<Suggestion> queue) { this.queue = new ArrayList<>(queue); }
 
     public void setPlayed(ArrayList<Song> played) { this.played = played; }
 
@@ -162,7 +165,7 @@ public class Room implements Parcelable {
         creationTime = in.readLong();
         maxParticipants = in.readInt();
         terminated = in.readByte() != 0;
-        queue = new LinkedList<>();
+        queue = new ArrayList<>();
         in.readTypedList(queue, Suggestion.CREATOR);
         played = new ArrayList<>();
         in.readTypedList(played, Song.CREATOR);

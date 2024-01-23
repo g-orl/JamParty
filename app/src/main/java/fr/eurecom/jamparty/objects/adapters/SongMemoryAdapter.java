@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
+
+import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.objects.Song;
+import fr.eurecom.jamparty.objects.Suggestion;
 
 public class SongMemoryAdapter extends RecyclerView.Adapter<SongMemoryAdapter.ViewHolder> {
     private List<Suggestion> songs;

@@ -1,4 +1,4 @@
-package fr.eurecom.jamparty;
+package fr.eurecom.jamparty.objects.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,6 +33,7 @@ import java.util.List;
 
 import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.Song;
 import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.ui.fragments.RoomFragment;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
@@ -42,6 +43,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
 
     private RoomFragment caller;
     private Room room;
+    private ArrayList<Suggestion> suggestions;
 
     public SuggestionAdapter(ArrayList<Suggestion> suggestions, RoomFragment caller) {
         this.suggestions = suggestions;
@@ -73,7 +75,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull SuggestionAdapter.ViewHolder holder, int position) {
-        Song song = suggestions.get(position);
+        Suggestion song = suggestions.get(position);
         // here you can set the callback method
         holder.memorySongName.setText(song.getName());
         holder.memorySongArtist.setText(song.getAuthor());
@@ -105,7 +107,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
         holder.memorySongImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                caller.showPopupWindow(v);
+                caller.showPopupWindow(v, song);
                 return true;
             }
         });

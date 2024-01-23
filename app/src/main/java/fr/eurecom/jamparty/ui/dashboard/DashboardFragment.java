@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,10 +23,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import fr.eurecom.jamparty.MainActivity;
-import fr.eurecom.jamparty.MemoryAdapter;
-import fr.eurecom.jamparty.Room;
-import fr.eurecom.jamparty.RoomAdapter;
-import fr.eurecom.jamparty.User;
+import fr.eurecom.jamparty.objects.adapters.MemoryAdapter;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.adapters.RoomAdapter;
+import fr.eurecom.jamparty.objects.User;
 import fr.eurecom.jamparty.databinding.FragmentDashboardBinding;
 
 

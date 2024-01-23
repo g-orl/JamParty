@@ -23,8 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import fr.eurecom.jamparty.Room;
-import fr.eurecom.jamparty.SongMemoryAdapter;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.adapters.SongMemoryAdapter;
 import fr.eurecom.jamparty.databinding.FragmentMemoryBinding;
 
 public class MemoryFragment extends Fragment {
