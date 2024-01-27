@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
                         String id = jsonNode.get("id").asText();
                         MainActivity.USER_ID = id;
+                        Log.i("USERID", id);
                         Toast.makeText(MainActivity.this, "User id: " + MainActivity.USER_ID, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         e.printStackTrace();

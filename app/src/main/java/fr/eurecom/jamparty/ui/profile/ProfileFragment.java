@@ -35,7 +35,7 @@ public class ProfileFragment extends Fragment {
                 AuthorizationRequest.Builder builder =
                         new AuthorizationRequest.Builder(MainActivity.CLIENT_ID, AuthorizationResponse.Type.TOKEN, MainActivity.REDIRECT_URI);
 
-                builder.setScopes(new String[]{"streaming", "user-library-read", "playlist-read-private", "user-read-private", "user-read-email"});
+                builder.setScopes(new String[]{"user-library-read", "user-read-currently-playing", "user-read-playback-state", "user-read-private", "user-read-email", "user-modify-playback-state"});
                 AuthorizationRequest request = builder.build();
 
                 AuthorizationClient.openLoginActivity(getActivity(), MainActivity.REQUEST_CODE, request);

@@ -80,8 +80,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             public void onClick(View v) {
                 FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
 
-                Toast.makeText(caller.getContext(), "Added: " + song.getName() + " radio", Toast.LENGTH_SHORT).show();
-                // TODO substitute with string
+                Toast.makeText(caller.getContext(), "Added: " + song.getName(), Toast.LENGTH_SHORT).show();
+
                 DatabaseReference rooms = database.getReference("Rooms");
                 rooms.child(caller.room.getId()).setValue(caller.room);
 

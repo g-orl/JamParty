@@ -10,6 +10,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -171,5 +172,16 @@ public class Room implements Parcelable {
         in.readTypedList(played, Song.CREATOR);
     }
 
+    public ArrayList<String> songsToAdd(ArrayList<String> songsUri){
+        // return all songs in suggestions that are not in songsUri
+
+        ArrayList<String> toAdd = new ArrayList<>();
+            for(Suggestion suggestion: this.queue){
+                if(!songsUri.contains(suggestion.getUri())){
+                    toAdd.add(suggestion.getUri());
+                }
+            }
+        return toAdd;
+    }
 
 }

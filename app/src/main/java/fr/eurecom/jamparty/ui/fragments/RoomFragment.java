@@ -23,15 +23,23 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
@@ -43,6 +51,7 @@ import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.objects.adapters.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
+import fr.eurecom.jamparty.SpotifyApiPostTask;
 
 public class RoomFragment  extends Fragment {
     public ArrayList<Song> songs;
@@ -79,8 +88,44 @@ public class RoomFragment  extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Room room = snapshot.getValue(Room.class);
+
+                // TODO need to update room of the current fragment?
                 suggestionAdapter.setRoom(room);
 
+                if(room.getOwnerId().compareTo(MainActivity.USER_ID) == 0) {
+                    new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
+                        @Override
+                        public void onTaskComplete(String result) {
+                            if (result != null) {
+                                try {
+                                    // Create an ObjectMapper
+                                    ObjectMapper objectMapper = new ObjectMapper();
+
+                                    // Parse JSON string to JsonNode
+                                    JsonNode jsonNode = objectMapper.readTree(result);
+
+                                    for (JsonNode songNode : jsonNode.get("queue")) {
+                                        if(!room.getQueue().contains(songNode.get("uri").asText()))
+                                        new SpotifyApiPostTask(res -> {
+
+                                            if (res != null) {
+                                                try {
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }).execute(URLEncoder.encode(songNode.get("uri").asText(), StandardCharsets.UTF_8));
+                                    }
+
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }).execute("https://api.spotify.com/v1/me/player/queue");
+                }
                 suggestionAdapter.notifyDataSetChanged();
             }
 
