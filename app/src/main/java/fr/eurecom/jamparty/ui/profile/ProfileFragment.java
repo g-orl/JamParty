@@ -28,6 +28,8 @@ public class ProfileFragment extends Fragment {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        binding.buttonLogin.setVisibility(MainActivity.isLoggedIn() ? View.GONE : View.VISIBLE);
+        binding.buttonLogout.setVisibility(MainActivity.isLoggedIn() ? View.VISIBLE : View.GONE);
 
         binding.buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +48,9 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AuthorizationClient.clearCookies(getActivity());
+                MainActivity.resetUserId();
+                binding.buttonLogin.setVisibility(View.VISIBLE);
+                binding.buttonLogout.setVisibility(View.GONE);
             }
         });
         return root;

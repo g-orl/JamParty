@@ -2,7 +2,12 @@ package fr.eurecom.jamparty.objects;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
+
+import fr.eurecom.jamparty.MainActivity;
 
 public class User {
 
@@ -23,28 +28,40 @@ public class User {
     }
 
     public User() {
-
+        this.roomIdsHistory = new ArrayList<>();
     }
 
     public String getId() {
         return id;
     }
+    public void setId(String id) { this.id = id; }
 
     public double getLatitude() {
         return latitude;
     }
 
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+
     public double getLongitude() {
         return longitude;
     }
+
+    public void setLongitude(double longitude) { this.longitude = longitude; }
 
     public String getCurrentRoomId() { return currentRoomId; }
     public void setCurrentRoomId(@Nullable String roomId) { this.currentRoomId = roomId; }
 
     public ArrayList<String> getRoomIdsHistory() { return roomIdsHistory; }
+    public void setRoomIdsHistory(ArrayList<String> roomIdsHistory) {
+        this.roomIdsHistory = roomIdsHistory;
+    }
+    public void addRoomToHistory(String roomId) {
+        if (roomIdsHistory.isEmpty() || !roomIdsHistory.get(roomIdsHistory.size()-1).equals(roomId)) {
+            roomIdsHistory.add(roomId);
+        }
+    }
 
     public String getOwnedRoomId() { return ownedRoomId; }
-
     public void setOwnedRoomId(@Nullable String roomId) {
         this.ownedRoomId = roomId;
     }
@@ -53,8 +70,12 @@ public class User {
         return id == other.id;
     }
 
-    public static User get(String userId) {
-        // retrieve user object from remote DB
-        return null;
+    public void pushLocationToDb() {
+        MainActivity.USERS_REF.child(id+"/latitude").setValue(latitude);
+        MainActivity.USERS_REF.child(id+"/longitude").setValue(longitude);
+    }
+
+    public void pushToDb() {
+        MainActivity.USERS_REF.child(id).setValue(this);
     }
 }

@@ -17,8 +17,10 @@ import java.util.List;
 
 import java.util.ArrayList;
 
+import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.RoomUserManager;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     private List<Room> rooms;
@@ -63,7 +65,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                 if(enableJoin) {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("room", room);
-
+                    RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
                     fragmentController.navigate(R.id.navigation_room, bundle);
                 }
             }

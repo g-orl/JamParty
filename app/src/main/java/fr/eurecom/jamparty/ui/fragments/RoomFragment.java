@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.RoomUserManager;
 import fr.eurecom.jamparty.objects.Song;
+import fr.eurecom.jamparty.objects.User;
 import fr.eurecom.jamparty.objects.adapters.SongAdapter;
 import fr.eurecom.jamparty.SpotifyApiTask;
 import fr.eurecom.jamparty.objects.Suggestion;
@@ -44,7 +46,7 @@ import fr.eurecom.jamparty.objects.adapters.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
-public class RoomFragment  extends Fragment {
+public class RoomFragment extends Fragment implements ThreadCompleteListener {
     public ArrayList<Song> songs;
     private FragmentRoomBinding binding;
     public NavController fragmentController;
@@ -78,6 +80,7 @@ public class RoomFragment  extends Fragment {
         rooms.child(this.room.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // TODO: update adapters and other stuff here!!!
                 Room room = snapshot.getValue(Room.class);
                 suggestionAdapter.setRoom(room);
 
@@ -104,6 +107,8 @@ public class RoomFragment  extends Fragment {
             public void onClick(View v) {
                 // TODO go back to home fragment
                 fragmentController.navigate(R.id.navigation_home);
+                RoomUserManager.userExitRoom(MainActivity.getUser(), room);
+
             }
         });
 
@@ -189,6 +194,45 @@ public class RoomFragment  extends Fragment {
 
         binding.textRoomName.setText(room.getName());
 
+        Toast endToast = Toast.makeText(requireContext(), "The room is terminated", Toast.LENGTH_SHORT);
+        class RoomChecker extends Thread {
+            private ThreadCompleteListener listener;
+
+            public RoomChecker(ThreadCompleteListener listener) {
+                this.listener = listener;
+            }
+
+            @Override
+            public void run() {
+                long sleepTime = 1000;
+                while (true) {
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (room == null) continue;
+                    User user = MainActivity.getUser();
+                    long currentTime = System.currentTimeMillis();
+                    long closeTime = room.getCloseTime();
+                    Log.i("RoomEnd", String.valueOf(closeTime-currentTime));
+                    if (currentTime >= closeTime) {
+                        if (RoomUserManager.userOwnsRoom(user, room)) {
+                            room.setTerminated(true);
+                            room.pushTerminatedToDb();
+                        }
+                        RoomUserManager.userExitRoom(user, room);
+                        endToast.show();
+                        break;
+                    }
+                }
+                if (listener != null) {
+                    listener.notifyThreadComplete(this);
+                }
+            }
+        }
+        RoomChecker roomChecker = new RoomChecker(this);
+        roomChecker.start();
         return root;
     }
 
@@ -227,5 +271,10 @@ public class RoomFragment  extends Fragment {
                 room.pushSongsToDb();
             }
         });
+    }
+
+    @Override
+    public void notifyThreadComplete(Thread thread) {
+        fragmentController.navigate(R.id.navigation_home);
     }
 }

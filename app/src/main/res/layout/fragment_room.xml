@@ -56,8 +56,8 @@
             android:layout_width="match_parent"
             android:layout_height="62dp"
             android:ems="10"
+            android:hint="@android:string/search_go"
             android:inputType="text"
-            android:text="Search"
             android:textSize="18sp" />
 
         <androidx.recyclerview.widget.RecyclerView

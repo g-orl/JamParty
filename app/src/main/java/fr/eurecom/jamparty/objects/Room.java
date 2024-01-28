@@ -24,20 +24,22 @@ public class Room implements Parcelable {
     private @Nullable String ownerId; // id of the user currently owning the room
     private ArrayList<String> userIds;  // Contains the ids of the users that are currently inside the room
     private long creationTime;  // Date when the room was created
+    private long closeTime;     // Date/time when the room will be closed
     private int maxParticipants;    // Max number of participants allowed in the room
     private boolean terminated; // Tells if the room is still active, i.e. more users can join
     private ArrayList<Suggestion> queue;
     private ArrayList<Song> played;
 
 
-    public Room(String id, String name, String hash) {
+    public Room(String id, String name, String hash, int maxParticipants, long durationMillis) {
         this.id = id;
         this.name = name;
         this.hash = hash;
         this.ownerId = null;
         this.userIds = new ArrayList<>();
         this.creationTime = System.currentTimeMillis();
-        this.maxParticipants = 16;
+        this.closeTime = this.creationTime + durationMillis;
+        this.maxParticipants = maxParticipants;
         this.terminated = false;
         this.queue = new ArrayList<>();
         this.played = new ArrayList<>();
@@ -83,6 +85,10 @@ public class Room implements Parcelable {
     public ArrayList<String> getUserIds() {
         return userIds;
     }
+    public void addUser(String userId) {
+        if (userIds.indexOf(userId) == -1)
+            userIds.add(userId);
+    }
 
     public long getCreationTime() {
         return creationTime;
@@ -95,6 +101,7 @@ public class Room implements Parcelable {
     public boolean isTerminated() {
         return terminated;
     }
+    public void setTerminated(boolean terminated) { this.terminated = terminated; }
 
     public void addToQueue(Suggestion song) { this.queue.add(song); }
 
@@ -119,10 +126,16 @@ public class Room implements Parcelable {
     public void setPlayed(ArrayList<Song> played) { this.played = played; }
 
     public void pushSongsToDb() {
-        FirebaseDatabase db = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
-        DatabaseReference roomsRef = db.getReference(MainActivity.ROOMS_TABLE);
-        roomsRef.child(this.id+"/queue").setValue(this.queue);
-        roomsRef.child(this.id+"/played").setValue(this.played);
+        MainActivity.ROOMS_REF.child(this.id+"/queue").setValue(this.queue);
+        MainActivity.ROOMS_REF.child(this.id+"/played").setValue(this.played);
+    }
+
+    public void pushUsersToDb() {
+        MainActivity.ROOMS_REF.child(this.id+"/userIds").setValue(this.userIds);
+    }
+
+    public void pushToDb() {
+        MainActivity.ROOMS_REF.child(this.id).setValue(this);
     }
 
     @Override
@@ -171,5 +184,16 @@ public class Room implements Parcelable {
         in.readTypedList(played, Song.CREATOR);
     }
 
+    public long getCloseTime() {
+        return closeTime;
+    }
+
+    public void setCloseTime(long closeTime) {
+        this.closeTime = closeTime;
+    }
+
+    public void pushTerminatedToDb() {
+        MainActivity.ROOMS_REF.child(this.id+"/terminated").setValue(this.terminated);
+    }
 
 }

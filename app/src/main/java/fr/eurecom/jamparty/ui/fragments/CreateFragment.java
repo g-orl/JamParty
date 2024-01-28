@@ -9,10 +9,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+
+import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.objects.Hasher;
+import fr.eurecom.jamparty.objects.Room;
+import fr.eurecom.jamparty.objects.RoomUserManager;
+import fr.eurecom.jamparty.objects.User;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,45 +33,65 @@ import fr.eurecom.jamparty.R;
  */
 public class CreateFragment extends DialogFragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     public static String TAG = "CreateRoomDialog";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private EditText txtName;
+    private EditText txtPassword;
+    private EditText txtMaxParticipants;
+    private EditText txtDuration;
+    private NavController fragmentController;
 
     public CreateFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CreateFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static CreateFragment newInstance(String param1, String param2) {
         CreateFragment fragment = new CreateFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        this.fragmentController = NavHostFragment.findNavController(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        txtName = (EditText) getDialog().findViewById(R.id.inputName);
+        txtPassword = (EditText) getDialog().findViewById(R.id.inputPassword);
+        txtMaxParticipants = (EditText) getDialog().findViewById(R.id.inputMaxParticipants);
+        txtDuration = (EditText) getDialog().findViewById(R.id.inputDuration);
+        txtMaxParticipants.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = s.toString();
+                int value = Integer.parseInt(text);
+                if (value < 1) {
+                    txtMaxParticipants.setText("1");
+                } else if (value > 256) {
+                    txtMaxParticipants.setText("256");
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+        txtDuration.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = s.toString();
+                int value = Integer.parseInt(text);
+                if (value < 1) {
+                    txtDuration.setText("1");
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
     }
 
 //    @Override
@@ -80,12 +112,29 @@ public class CreateFragment extends DialogFragment {
                 .setPositiveButton(getString(R.string.create_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (which == Dialog.BUTTON_POSITIVE){
+                        if (which == Dialog.BUTTON_POSITIVE) {
                             // user wants to create the room
-                            // TODO add room to Firebase
-                            EditText name = (EditText) getDialog().findViewById(R.id.inputName);
-                            EditText password = (EditText) getDialog().findViewById(R.id.inputPassword);
-                            System.out.println(String.format("User wants to create room:\nName: %s\nPassword: %s", name.getText().toString(), password.getText().toString()));
+                            String name = txtName.getText().toString();
+                            String password = txtPassword.getText().toString();
+                            String maxParticipantsStr = txtMaxParticipants.getText().toString();
+                            String durationStr = txtDuration.getText().toString();
+                            if(name.isEmpty() || maxParticipantsStr.isEmpty() || durationStr.isEmpty()) {
+                                Toast.makeText(requireContext(), "Please fill all the required fields.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            String hash = Hasher.hashString(password);
+                            int maxParticipants = Integer.parseInt(maxParticipantsStr);
+                            int duration = Integer.parseInt(durationStr);
+                            int durationMillis = duration * 60 * 1000;
+                            DatabaseReference roomsRef = MainActivity.ROOMS_REF;
+                            String id = "room" + roomsRef.push().getKey();
+                            Room room = new Room(id, name, hash, maxParticipants, durationMillis);
+                            room.pushToDb();
+
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable("room", room);
+                            RoomUserManager.userJoinRoom(MainActivity.getUser(), room, true);
+                            fragmentController.navigate(R.id.navigation_room, bundle);
                         }
                     }
                 })

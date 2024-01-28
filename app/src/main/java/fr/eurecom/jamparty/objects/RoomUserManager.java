@@ -19,8 +19,11 @@ public class RoomUserManager {
         } else {
             user.setOwnedRoomId(null);
         }
-        user.getRoomIdsHistory().add(roomId);
-        room.getUserIds().add(userId);
+        user.addRoomToHistory(roomId);
+        room.addUser(userId);
+
+        room.pushUsersToDb();
+        user.pushToDb();
     }
 
     public static void userExitRoom(User user, Room room) {
@@ -31,24 +34,12 @@ public class RoomUserManager {
         user.setOwnedRoomId(null);
         user.setCurrentRoomId(null);
         room.getUserIds().remove(userId);   // check if this works
-        if(room.getOwnerId().equals(userId)) {
-            // should happen only if he is the last user in the room
-            // terminate room
+        room.pushUsersToDb();
+        user.pushToDb();
+    }
 
-            /* if(room.getNumParticipants() == 0) {
-
-            } else {
-                String newOwnerId = room.getUserIds().get(0);
-                User newOwner = User.get(newOwnerId);
-                if(newOwner == null) {
-                    throw new RuntimeException("CAN'T REASSIGN OWNER");
-                }
-                room.setOwnerId(newOwnerId);
-
-            }
-            room.setOwnerId(null);
-            room.reassignOwner(); */
-        }
+    public static boolean userOwnsRoom(User user, Room room) {
+        return user.getId() == room.getOwnerId();
     }
 
 

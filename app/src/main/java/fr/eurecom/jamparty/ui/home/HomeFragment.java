@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -75,7 +76,11 @@ public class HomeFragment extends Fragment {
                 new CreateFragment().show(getChildFragmentManager(), CreateFragment.TAG);
             }
         });
-        setupLocationProvider();
+        if (MainActivity.isLoggedIn()) {
+            setupLocationProvider();
+        } else {
+            fragmentController.navigate(R.id.navigation_profile);
+        }
         return root;
     }
 
@@ -190,6 +195,12 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) { Log.e("Database Error", databaseError.getMessage()); }
                 });
+        if (MainActivity.isLoggedIn()) {
+            User user = MainActivity.getUser();
+            user.setLatitude(latitude);
+            user.setLongitude(longitude);
+            user.pushLocationToDb();
+        }
 
     }
 

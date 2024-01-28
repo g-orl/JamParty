@@ -7,15 +7,20 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.firebase.database.ValueEventListener;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -40,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 1337;
     public static final String ROOMS_TABLE = "Rooms";
     public static final String USERS_TABLE = "Users";
+    private static User logged_in_user = null;
+    public static final FirebaseDatabase DB = FirebaseDatabase.getInstance(DATABASE_URL);
+    public static final DatabaseReference USERS_REF = DB.getReference(USERS_TABLE);
+    public static final DatabaseReference ROOMS_REF = DB.getReference(ROOMS_TABLE);
 
 
     @Override
@@ -76,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         key = "room"+roomsRef.push().getKey();
-        Room room1 = new Room(key, "ItaRoom", "chiave");
+        Room room1 = new Room(key, "ItaRoom", "chiave", 16, 60);
         key = "room"+roomsRef.push().getKey();
-        Room room2 = new Room(key, "FraRoom", "chiave_in_francese");
+        Room room2 = new Room(key, "FraRoom", "chiave_in_francese", 16, 60);
         key = "room"+roomsRef.push().getKey();
-        Room room3 = new Room(key, "EngRoom", "key");
+        Room room3 = new Room(key, "EngRoom", "key", 16, 60);
 
         RoomUserManager.userJoinRoom(user1, room1, true);
         RoomUserManager.userJoinRoom(user2, room2, true);
@@ -96,9 +105,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected(){
-
         // get user id
         String spotifyEndpointUrl = "https://api.spotify.com/v1/me";
+        // get navigator
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
         // Execute the AsyncTask
         new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
@@ -114,8 +124,39 @@ public class MainActivity extends AppCompatActivity {
                         JsonNode jsonNode = objectMapper.readTree(result);
 
                         String id = jsonNode.get("id").asText();
-                        MainActivity.USER_ID = id;
-                        Toast.makeText(MainActivity.this, "User id: " + MainActivity.USER_ID, Toast.LENGTH_SHORT).show();
+                        USER_ID = id;
+                        USERS_REF.child(USER_ID).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                User user = snapshot.getValue(User.class);
+                                logged_in_user = user;
+                                if (user.getId() == null) {
+                                    user.setId(USER_ID);
+                                    USERS_REF.child(USER_ID).setValue(user);
+                                }
+                                if (user.getCurrentRoomId() == null)
+                                    navController.navigate(R.id.navigation_home);
+                                else {
+                                    ROOMS_REF.child(user.getCurrentRoomId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            Room room = snapshot.getValue(Room.class);
+                                            Bundle bundle = new Bundle();
+                                            bundle.putParcelable("room", room);
+                                            RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
+                                            navController.navigate(R.id.navigation_room, bundle);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) { }
+                                    });
+                                }
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) { }
+                        });
+
+                        Toast.makeText(MainActivity.this, "Welcome " + MainActivity.USER_ID, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -189,4 +230,7 @@ public class MainActivity extends AppCompatActivity {
         return USER_ID != null;
     }
 
+    public static void resetUserId() { USER_ID = null; }
+
+    public static User getUser() { return logged_in_user; }
 }
