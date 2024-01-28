@@ -2,17 +2,11 @@ package fr.eurecom.jamparty.objects;
 
 import androidx.annotation.Nullable;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
 
 import fr.eurecom.jamparty.MainActivity;
 
@@ -46,6 +40,7 @@ public class Room implements Parcelable {
     }
 
     public Room() {
+        this.userIds = new ArrayList<>();
         this.queue = new ArrayList<>();
         this.played = new ArrayList<>();
     }
@@ -85,6 +80,7 @@ public class Room implements Parcelable {
     public ArrayList<String> getUserIds() {
         return userIds;
     }
+    public void setUserIds(ArrayList<String> userIds) { this.userIds = userIds; }
     public void addUser(String userId) {
         if (userIds.indexOf(userId) == -1)
             userIds.add(userId);
@@ -132,6 +128,7 @@ public class Room implements Parcelable {
 
     public void pushUsersToDb() {
         MainActivity.ROOMS_REF.child(this.id+"/userIds").setValue(this.userIds);
+        MainActivity.ROOMS_REF.child(this.id+"/ownerId").setValue(this.ownerId);
     }
 
     public void pushToDb() {

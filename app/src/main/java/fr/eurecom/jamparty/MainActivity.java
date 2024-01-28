@@ -85,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         key = "room"+roomsRef.push().getKey();
-        Room room1 = new Room(key, "ItaRoom", "chiave", 16, 60);
+        Room room1 = new Room(key, "ItaRoom", "chiave", 16, 1000 * 60 * 60 * 4);
         key = "room"+roomsRef.push().getKey();
-        Room room2 = new Room(key, "FraRoom", "chiave_in_francese", 16, 60);
+        Room room2 = new Room(key, "FraRoom", "chiave_in_francese", 16, 1000 * 60 * 60 * 24 * 5);
         key = "room"+roomsRef.push().getKey();
-        Room room3 = new Room(key, "EngRoom", "key", 16, 60);
+        Room room3 = new Room(key, "EngRoom", "key", 16, 1000 * 60 * 60 * 24 * 100);
 
         RoomUserManager.userJoinRoom(user1, room1, true);
         RoomUserManager.userJoinRoom(user2, room2, true);
@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 User user = snapshot.getValue(User.class);
+                                if (user == null) user = new User();
                                 logged_in_user = user;
                                 if (user.getId() == null) {
                                     user.setId(USER_ID);
