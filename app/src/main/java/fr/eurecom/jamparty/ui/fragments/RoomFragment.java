@@ -15,6 +15,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,7 +48,7 @@ import fr.eurecom.jamparty.objects.adapters.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
 
-public class RoomFragment extends Fragment implements ThreadCompleteListener {
+public class RoomFragment extends Fragment {
     public ArrayList<Song> songs;
     private FragmentRoomBinding binding;
     public NavController fragmentController;
@@ -69,21 +71,18 @@ public class RoomFragment extends Fragment implements ThreadCompleteListener {
 
         this.fragmentController = NavHostFragment.findNavController(this);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
-        DatabaseReference rooms = database.getReference("Rooms");
-
         SongAdapter adapter = new SongAdapter(songs, this);
         suggestionAdapter = new SuggestionAdapter(room.getQueue(), this);
         binding.songList.setAdapter(adapter);
         binding.suggestions.setAdapter(suggestionAdapter);
 
-        rooms.child(this.room.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference roomRef = MainActivity.ROOMS_REF.child(this.room.getId());
+        roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // TODO: update adapters and other stuff here!!!
                 Room room = snapshot.getValue(Room.class);
                 suggestionAdapter.setRoom(room);
-
                 suggestionAdapter.notifyDataSetChanged();
             }
 
@@ -91,6 +90,21 @@ public class RoomFragment extends Fragment implements ThreadCompleteListener {
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("Database Error", error.getMessage());
             }
+        });
+        roomRef.addChildEventListener(new ChildEventListener() {
+            @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                String childKey = snapshot.getKey();
+                if (childKey.equals("terminated")) {
+                    boolean childValue = snapshot.getValue(Boolean.class);
+                    if (childValue)
+                        fragmentController.navigate(R.id.navigation_home);
+                }
+            }
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
         });
 
         LinearLayoutManager songLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -195,43 +209,31 @@ public class RoomFragment extends Fragment implements ThreadCompleteListener {
         binding.textRoomName.setText(room.getName());
 
         Toast endToast = Toast.makeText(requireContext(), "The room is terminated", Toast.LENGTH_SHORT);
-        class RoomChecker extends Thread {
-            private ThreadCompleteListener listener;
-
-            public RoomChecker(ThreadCompleteListener listener) {
-                this.listener = listener;
-            }
-
-            @Override
-            public void run() {
-                long sleepTime = 1000;
-                while (true) {
-                    try {
-                        Thread.sleep(sleepTime);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if (room == null) continue;
-                    User user = MainActivity.getUser();
-                    long currentTime = System.currentTimeMillis();
-                    long closeTime = room.getCloseTime();
-                    Log.i("RoomEnd", String.valueOf(closeTime-currentTime));
-                    if (currentTime >= closeTime) {
-                        if (RoomUserManager.userOwnsRoom(user, room)) {
-                            room.setTerminated(true);
-                            room.pushTerminatedToDb();
-                        }
-                        RoomUserManager.userExitRoom(user, room);
-                        endToast.show();
-                        break;
-                    }
+        Runnable runThread = () -> {
+            long sleepTime = 1000;
+            while (true) {
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-                if (listener != null) {
-                    listener.notifyThreadComplete(this);
+                if (room == null) continue;
+                User user = MainActivity.getUser();
+                long currentTime = System.currentTimeMillis();
+                long closeTime = room.getCloseTime();
+                Log.i("RoomEnd", String.valueOf(closeTime-currentTime));
+                if (currentTime >= closeTime) {
+                    if (RoomUserManager.userOwnsRoom(user, room)) {
+                        room.setTerminated(true);
+                        room.pushTerminatedToDb();
+                    }
+                    RoomUserManager.userExitRoom(user, room);
+                    endToast.show();
+                    break;
                 }
             }
-        }
-        RoomChecker roomChecker = new RoomChecker(this);
+        };
+        Thread roomChecker = new Thread(runThread);
         roomChecker.start();
         return root;
     }
@@ -271,10 +273,5 @@ public class RoomFragment extends Fragment implements ThreadCompleteListener {
                 room.pushSongsToDb();
             }
         });
-    }
-
-    @Override
-    public void notifyThreadComplete(Thread thread) {
-        fragmentController.navigate(R.id.navigation_home);
     }
 }

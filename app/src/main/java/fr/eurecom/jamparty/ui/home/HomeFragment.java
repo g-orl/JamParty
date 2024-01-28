@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
         Log.i("LatLng", latitude + " " + longitude);
 
         final ArrayList<Room> roomsArray = new ArrayList<>();
-        final RoomAdapter roomAdapter = new RoomAdapter(roomsArray, this.fragmentController, MainActivity.isLoggedIn());
+        final RoomAdapter roomAdapter = new RoomAdapter(roomsArray, this.fragmentController, MainActivity.isLoggedIn(), requireContext());
 
         final RecyclerView recyclerView = view.findViewById(R.id.home_room_list);
         recyclerView.setAdapter(roomAdapter);

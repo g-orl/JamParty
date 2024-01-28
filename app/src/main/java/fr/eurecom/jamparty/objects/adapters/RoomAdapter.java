@@ -1,11 +1,18 @@
 package fr.eurecom.jamparty.objects.adapters;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
@@ -19,6 +26,7 @@ import java.util.ArrayList;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.objects.Hasher;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.RoomUserManager;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
@@ -26,6 +34,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     private List<Room> rooms;
     private NavController fragmentController;
     private boolean enableJoin;
+    private Context context;
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -39,10 +48,11 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         }
     }
 
-    public RoomAdapter(List<Room> rooms, NavController fragmentController, boolean enableJoin) {
+    public RoomAdapter(List<Room> rooms, NavController fragmentController, boolean enableJoin, Context context) {
         this.rooms = rooms;
         this.fragmentController = fragmentController;
         this.enableJoin = enableJoin;
+        this.context = context;
     }
 
     @NonNull
@@ -61,8 +71,42 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!enableJoin) return;
                 // TODO implement join functionality
-                if(enableJoin) {
+                String hash = Hasher.hashString("");
+                if (!hash.equals(room.getHash())) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Enter room password");
+                    // Set up the input
+                    final EditText input = new EditText(context);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    builder.setView(input);
+                    // Set up the buttons
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String password = input.getText().toString();
+                            String hash = Hasher.hashString(password);
+                            if (room.getHash().equals(hash)) {
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelable("room", room);
+                                RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
+                                fragmentController.navigate(R.id.navigation_room, bundle);
+                            } else {
+                                Log.e("PasswordHash", room.getHash()+" - "+hash);
+                                Toast.makeText(context, "Wrong Password.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                } else {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("room", room);
                     RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
