@@ -53,6 +53,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RoomAdapter.ViewHolder holder, int position) {
         Room room = rooms.get(position);
+        if(room == null) return;
         // here you can set the callback method
         holder.textView.setText(room.getName());
 

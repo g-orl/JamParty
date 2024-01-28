@@ -46,6 +46,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull MemoryAdapter.ViewHolder holder, int position) {
         Room room = rooms.get(position);
+        if(room==null) return;
         // here you can set the callback method
         holder.textView.setText(room.getName());
         holder.imageView.setOnClickListener(new View.OnClickListener() {

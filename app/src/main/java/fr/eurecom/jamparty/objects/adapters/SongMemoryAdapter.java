@@ -51,7 +51,9 @@ public class SongMemoryAdapter extends RecyclerView.Adapter<SongMemoryAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull SongMemoryAdapter.ViewHolder holder, int position) {
         Song song = songs.get(position);
+        if(song == null) return;
         // here you can set the callback method
+
         holder.memorySongName.setText(song.getName());
         holder.memorySongArtist.setText(song.getAuthor());
 
