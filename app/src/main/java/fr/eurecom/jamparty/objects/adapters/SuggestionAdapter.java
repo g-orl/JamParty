@@ -81,6 +81,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull SuggestionAdapter.ViewHolder holder, int position) {
         Suggestion song = suggestions.get(position);
+        if(song == null) return;
 
         // here you can set the callback method
         holder.memorySongName.setText(song.getName());

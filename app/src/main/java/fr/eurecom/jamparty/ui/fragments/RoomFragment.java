@@ -15,6 +15,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -91,8 +93,20 @@ public class RoomFragment  extends Fragment {
 
                 // TODO need to update room of the current fragment?
                 suggestionAdapter.setRoom(room);
+                suggestionAdapter.notifyDataSetChanged();
+            }
 
-                if(room.getOwnerId().compareTo(MainActivity.USER_ID) == 0) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Database Error", error.getMessage());
+            }
+        });
+
+        rooms.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if(room.getOwnerId().compareTo(MainActivity.USER_ID) == 0){
+                    Suggestion suggestion = snapshot.getValue(Suggestion.class);
                     new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
                         @Override
                         public void onTaskComplete(String result) {
@@ -103,9 +117,15 @@ public class RoomFragment  extends Fragment {
 
                                     // Parse JSON string to JsonNode
                                     JsonNode jsonNode = objectMapper.readTree(result);
-
+                                    Boolean found = false;
+                                    // need to check that suggestion is not in queue already
                                     for (JsonNode songNode : jsonNode.get("queue")) {
-                                        if(!room.getQueue().contains(songNode.get("uri").asText()))
+                                        if(songNode.get("uri").asText().compareTo(suggestion.getUri()) == 0){
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found){
                                         new SpotifyApiPostTask(res -> {
 
                                             if (res != null) {
@@ -115,9 +135,8 @@ public class RoomFragment  extends Fragment {
                                                     e.printStackTrace();
                                                 }
                                             }
-                                        }).execute(URLEncoder.encode(songNode.get("uri").asText(), StandardCharsets.UTF_8));
+                                        }).execute(URLEncoder.encode(suggestion.getUri(), StandardCharsets.UTF_8));
                                     }
-
 
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -126,12 +145,27 @@ public class RoomFragment  extends Fragment {
                         }
                     }).execute("https://api.spotify.com/v1/me/player/queue");
                 }
-                suggestionAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Database Error", error.getMessage());
+
             }
         });
 
