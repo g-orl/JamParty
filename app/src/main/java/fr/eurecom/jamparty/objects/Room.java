@@ -14,6 +14,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import fr.eurecom.jamparty.MainActivity;
 
@@ -98,6 +99,15 @@ public class Room implements Parcelable {
     }
 
     public void addToQueue(Suggestion song) { this.queue.add(song); }
+    public void removeFromQueue(Suggestion song){
+        this.queue.removeIf(new Predicate<Suggestion>() {
+            @Override
+            public boolean test(Suggestion suggestion) {
+                // removes the same user suggestion on the same song
+                return suggestion.getUri().compareTo(song.getUri()) == 0 && suggestion.getUserId().compareTo(song.getUserId()) == 0;
+            }
+        });
+    }
 
     public int getNumParticipants() { return userIds.size(); }
 
@@ -182,6 +192,11 @@ public class Room implements Parcelable {
                 }
             }
         return toAdd;
+    }
+
+    public void addPlayedSong(Suggestion suggestion){
+        // need to add the passed suggestion into the played songs list
+        this.played.add(suggestion);
     }
 
 }

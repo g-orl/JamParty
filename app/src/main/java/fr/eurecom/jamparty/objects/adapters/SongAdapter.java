@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,21 +20,31 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Handler;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.SpotifyApiPostTask;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.Song;
 import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.ui.fragments.RoomFragment;
+import fr.eurecom.jamparty.SpotifyApiTask;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     private List<Song> songs;
@@ -84,11 +95,43 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                 Toast.makeText(caller.getContext(), "Added: " + song.getName(), Toast.LENGTH_SHORT).show();
 
                 DatabaseReference rooms = database.getReference("Rooms");
-                rooms.child(caller.room.getId()).setValue(caller.room);
 
-                caller.room.addToQueue(new Suggestion(song.getName(), song.getAuthor(), song.getUri(), song.getImage_url(), MainActivity.USER_ID));
+
+                Suggestion suggestion = new Suggestion(song.getName(), song.getAuthor(), song.getUri(), song.getImage_url(), MainActivity.USER_ID);
+                caller.room.addToQueue(suggestion);
+
+                rooms.child(caller.room.getId()).setValue(caller.room);
                 caller.room.pushSongsToDb();
                 caller.suggestionAdapter.notifyDataSetChanged();
+
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        // need to add the song to spotify if no dislikes are added
+                        if(caller.room.getOwnerId().compareTo(MainActivity.USER_ID) == 0){
+                            if(suggestion.getVotesDown() == 0){
+                                // song did not get downvoted so can add to the spotify queue
+                                new SpotifyApiPostTask(res -> {
+                                    if (res != null) {
+                                        try {
+
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).execute(URLEncoder.encode(suggestion.getUri(), StandardCharsets.UTF_8));
+                            }
+                            caller.room.addPlayedSong(suggestion);
+                            // owner also removes the song from the suggestion queue and puts it in the played songs if it was added
+                            caller.room.removeFromQueue(suggestion);
+
+                            rooms.child(caller.room.getId()).setValue(caller.room);
+                            caller.room.pushSongsToDb();
+                            // caller.suggestionAdapter.notifyDataSetChanged();
+
+                        }
+                    }
+                }, 15000);
             }
         });
     }

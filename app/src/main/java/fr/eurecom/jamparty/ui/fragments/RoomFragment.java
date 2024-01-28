@@ -105,6 +105,7 @@ public class RoomFragment  extends Fragment {
         rooms.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                /*
                 if(room.getOwnerId().compareTo(MainActivity.USER_ID) == 0){
                     Suggestion suggestion = snapshot.getValue(Suggestion.class);
                     new SpotifyApiTask(new SpotifyApiTask.AsyncTaskListener() {
@@ -145,7 +146,7 @@ public class RoomFragment  extends Fragment {
                         }
                     }).execute("https://api.spotify.com/v1/me/player/queue");
                 }
-
+                */
             }
 
             @Override
@@ -156,6 +157,10 @@ public class RoomFragment  extends Fragment {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                // need to remove this suggestion from my suggestion queue
+                room.removeFromQueue(suggestion);
+                suggestionAdapter.notifyDataSetChanged();
+                // TODO save the song into the played songs
             }
 
             @Override
