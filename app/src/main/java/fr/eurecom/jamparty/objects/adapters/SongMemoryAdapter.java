@@ -19,7 +19,7 @@ import fr.eurecom.jamparty.objects.Song;
 import fr.eurecom.jamparty.objects.Suggestion;
 
 public class SongMemoryAdapter extends RecyclerView.Adapter<SongMemoryAdapter.ViewHolder> {
-    private List<Suggestion> songs;
+    private List<Song> songs;
     private FragmentManager fragmentManager;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -35,8 +35,8 @@ public class SongMemoryAdapter extends RecyclerView.Adapter<SongMemoryAdapter.Vi
         }
     }
 
-    public SongMemoryAdapter(List<Suggestion> suggestions, FragmentManager fragmentManager) {
-        this.songs = suggestions;
+    public SongMemoryAdapter(List<Song> songs, FragmentManager fragmentManager) {
+        this.songs = songs;
         this.fragmentManager = fragmentManager;
     }
 

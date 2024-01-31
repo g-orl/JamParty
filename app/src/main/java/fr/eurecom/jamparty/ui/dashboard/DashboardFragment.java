@@ -21,6 +21,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import fr.eurecom.jamparty.MainActivity;
@@ -59,7 +61,8 @@ public class DashboardFragment extends Fragment {
                         if (history.contains(room.getId()))
                             rooms.add(room);
                     }
-                    rooms.sort((r1, r2) -> (int)(r1.getCloseTime()-r2.getCloseTime()));
+                    // sort in reverse order
+                    rooms.sort((r1, r2) -> (int)(r2.getCreationTime()-r1.getCreationTime()));
                     memoryAdapter.notifyDataSetChanged();
                 }
 

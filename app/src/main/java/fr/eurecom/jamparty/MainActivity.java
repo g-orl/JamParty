@@ -139,10 +139,14 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                                             Room room = snapshot.getValue(Room.class);
-                                            Bundle bundle = new Bundle();
-                                            bundle.putParcelable("room", room);
-                                            RoomUserManager.userJoinRoom(logged_in_user, room, RoomUserManager.userOwnsRoom(logged_in_user, room));
-                                            navController.navigate(R.id.navigation_room, bundle);
+                                            if(RoomUserManager.userJoinRoom(logged_in_user, room, RoomUserManager.userOwnsRoom(logged_in_user, room)) == RoomUserManager.ROOM_TERMINATED) {
+                                                Toast.makeText(MainActivity.this, "Room is terminated", Toast.LENGTH_SHORT).show();
+                                                Bundle bundle = new Bundle();
+                                                bundle.putParcelable("room", room);
+                                                navController.navigate(R.id.navigation_room, bundle);
+                                            } else {
+                                                navController.navigate(R.id.navigation_home);
+                                            }
                                         }
 
                                         @Override

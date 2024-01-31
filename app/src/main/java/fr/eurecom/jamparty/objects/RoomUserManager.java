@@ -3,10 +3,12 @@ package fr.eurecom.jamparty.objects;
 public class RoomUserManager {
     public static int OPERATION_OK = 0;
     public static int ROOM_FULL = 1;
+    public static int ROOM_TERMINATED = 2;
     public static int userJoinRoom(User user, Room room, boolean owner) {
         if(user == null) throw new NullPointerException("user is null");
         if(room == null) throw new NullPointerException("room is null");
-        if(room.isTerminated()) throw new RuntimeException("user can't join a terminated room");
+        if(room.isTerminated())
+            return ROOM_TERMINATED;
         if(room.countParticipants() == room.getMaxParticipants())
             return ROOM_FULL;
         String roomId = room.getId();

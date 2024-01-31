@@ -206,9 +206,9 @@ public class Room implements Parcelable {
         return toAdd;
     }
 
-    public void addPlayedSong(Suggestion suggestion){
+    public void addPlayedSong(Song song){
         // need to add the passed suggestion into the played songs list
-        this.played.add(suggestion);
+        this.played.add(song);
     }
 
     public void pushTerminatedToDb() {
@@ -222,5 +222,9 @@ public class Room implements Parcelable {
 
     public boolean isFull() {
         return userIds.size() >= maxParticipants;
+    }
+
+    public ArrayList<Song> getPlayed() {
+        return played;
     }
 }

@@ -65,7 +65,7 @@ public class MemoryFragment extends Fragment {
         TextView memoryRoomName = binding.memoryRoomName;
         memoryRoomName.setText(room.getName());
         RecyclerView recyclerView = binding.memorySongList;
-        SongMemoryAdapter songMemoryAdapter = new SongMemoryAdapter(this.room.getQueue(), getChildFragmentManager());
+        SongMemoryAdapter songMemoryAdapter = new SongMemoryAdapter(this.room.getPlayed(), getChildFragmentManager());
 
         recyclerView.setAdapter(songMemoryAdapter);
 
