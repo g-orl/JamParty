@@ -89,10 +89,7 @@ public class RoomFragment extends Fragment {
         });
         roomRef.addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Suggestion suggestion = snapshot.getValue(Suggestion.class);
-                int index = Integer.parseInt(snapshot.getKey());
-                if (index >= room.getQueue().size())
-                    room.addToQueue(suggestion);
+
             }
             @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 String childKey = snapshot.getKey();
@@ -110,8 +107,13 @@ public class RoomFragment extends Fragment {
 
         MainActivity.ROOMS_REF.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                int index = Integer.parseInt(snapshot.getKey());
+                if (index >= room.getQueue().size()) {
+                    room.addToQueue(suggestion);
+                    suggestionAdapter.notifyDataSetChanged();
+                }
                 // need to remove this suggestion from my suggestion queue
-                suggestionAdapter.notifyDataSetChanged();
                 if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
                     SongTimer task = new SongTimer(room, room.getQueue().get(Integer.parseInt(snapshot.getKey())));
                     new Timer().schedule(task, 15000);
