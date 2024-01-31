@@ -65,8 +65,6 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
         public ImageView memorySongImage;
         public TextView memorySongName;
         public TextView memorySongArtist;
-        public View popupView;
-        public Suggestion suggestion = null;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -116,43 +114,21 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
 
         Glide.with(holder.itemView).load(suggestion.getImage_url()).into(holder.memorySongImage);
 
+        View popupView = caller.getLayoutInflater().inflate(R.layout.suggestion_popup, null);
         // TODO fix on click listener
-
-        /*
-        thumbDown.setOnClickListener(new View.OnClickListener() {
-            private boolean isDisliked = false;
-            @Override
-            public void onClick(View v) {
-                if (isDisliked) {
-                    suggestion.upvote();
-                    thumbDown.setImageResource(R.drawable.thumb_nobg);
-                } else {
-                    suggestion.downvote();
-                    thumbDown.setImageResource(R.drawable.thumb_red_nobg);
-                }
-                isDisliked = !isDisliked;
-                room.pushSongsToDb();
-            }
-        });
-         */
-
-        // TODO add album image to song
-        // TODO make image long clickable to dislike
         holder.memorySongImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 // Create and configure the popup window
-                holder.suggestion = suggestion;
-                PopupWindow popupWindow = new PopupWindow(holder.popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
                 popupWindow.setOutsideTouchable(true);
                 // Show the popup window at the specified location
                 popupWindow.showAsDropDown(v, 75, -v.getHeight()+75);
-                //showPopupWindow(v, song);
+                // showPopupWindow(v, song);
                 return true;
             }
         });
 
-        View popupView = caller.getLayoutInflater().inflate(R.layout.suggestion_popup, null);
         popupView.findViewById(R.id.dislike_button).setOnClickListener(new View.OnClickListener() {
             private boolean isDisliked = false;
             @Override
