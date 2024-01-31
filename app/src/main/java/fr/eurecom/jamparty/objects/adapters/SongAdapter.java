@@ -91,19 +91,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         holder.memorySongImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
 
                 Toast.makeText(caller.getContext(), "Added: " + song.getName(), Toast.LENGTH_SHORT).show();
-
-                DatabaseReference rooms = database.getReference("Rooms");
-
 
                 Suggestion suggestion = new Suggestion(song.getName(), song.getAuthor(), song.getUri(), song.getImage_url(), MainActivity.USER_ID);
                 caller.room.addToQueue(suggestion);
 
-                rooms.child(caller.room.getId()).setValue(caller.room);
+                //rooms.child(caller.room.getId()).setValue(caller.room);
                 caller.room.pushSongsToDb();
-                caller.suggestionAdapter.notifyDataSetChanged();
+                //caller.suggestionAdapter.notifyDataSetChanged();
                 // SongTimer task = new SongTimer(caller.room, suggestion);
                 // new Timer().schedule(task, 15000);
             }

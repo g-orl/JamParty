@@ -102,16 +102,20 @@ public class RoomFragment extends Fragment {
 
         MainActivity.ROOMS_REF.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                // Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 // need to remove this suggestion from my suggestion queue
-                room.addToQueue(suggestion);
+
                 suggestionAdapter.notifyDataSetChanged();
-                SongTimer task = new SongTimer(room, suggestion);
+                SongTimer task = new SongTimer(room, room.getQueue().get(Integer.parseInt(snapshot.getKey())));
                 new Timer().schedule(task, 15000);
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                // BE AWARE THAT ALL SUGGESTION CHANGES
+                room.getQueue().get(Integer.parseInt(snapshot.getKey())).setVotesDown(suggestion.getVotesDown());
+
+                // suggestionAdapter.notifyDataSetChanged();
             }
 
             @Override
