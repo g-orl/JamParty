@@ -72,7 +72,7 @@ public class RoomFragment extends Fragment {
         binding.suggestions.setAdapter(suggestionAdapter);
 
         DatabaseReference roomRef = MainActivity.ROOMS_REF.child(this.room.getId());
-        roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        /*roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Room roomDb = snapshot.getValue(Room.class);
@@ -86,7 +86,7 @@ public class RoomFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("Database Error", error.getMessage());
             }
-        });
+        });*/
         roomRef.addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
@@ -105,14 +105,14 @@ public class RoomFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 
-        MainActivity.ROOMS_REF.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
+        roomRef.child("queue").addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 int index = Integer.parseInt(snapshot.getKey());
                 if (index >= room.getQueue().size()) {
                     room.addToQueue(suggestion);
-                    suggestionAdapter.notifyDataSetChanged();
                 }
+                suggestionAdapter.notifyDataSetChanged();
                 // need to remove this suggestion from my suggestion queue
                 if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
                     SongTimer task = new SongTimer(room, room.getQueue().get(Integer.parseInt(snapshot.getKey())));
@@ -163,19 +163,9 @@ public class RoomFragment extends Fragment {
         });
 
         binding.editTextText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable s) {
                 // clear the previous songs present in the array
                 songs.clear();
 
@@ -220,27 +210,6 @@ public class RoomFragment extends Fragment {
                 // Log.i("TEXT", binding.editTextText.getText().toString());
             }
         });
-
-        /*playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked play!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked next!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked back!", Toast.LENGTH_SHORT).show();
-            }
-        });*/
 
         binding.textRoomName.setText(room.getName());
 
