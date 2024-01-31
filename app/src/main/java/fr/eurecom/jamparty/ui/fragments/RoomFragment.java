@@ -124,6 +124,7 @@ public class RoomFragment extends Fragment {
                 // need to remove this suggestion from my suggestion queue
                 room.removeFromQueue(suggestion);
                 suggestionAdapter.notifyDataSetChanged();
+                Log.i("CHILD INDEX", "Size end of remove = "+room.getQueue().size());
                 // TODO save the song into the played songs
             }
 
