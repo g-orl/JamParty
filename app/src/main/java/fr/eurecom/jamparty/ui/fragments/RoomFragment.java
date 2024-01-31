@@ -94,7 +94,7 @@ public class RoomFragment extends Fragment {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 int index = Integer.parseInt(snapshot.getKey());
-                Log.i("CHILD INDEX", index+" | "+room.getQueue().size());
+                Log.i("CHILD INDEX", "Added index " + index + " | size = "+room.getQueue().size());
                 if (index >= room.getQueue().size()) {
                     room.addToQueue(suggestion);
                 }
@@ -108,6 +108,8 @@ public class RoomFragment extends Fragment {
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                int index = Integer.parseInt(snapshot.getKey());
+                Log.i("CHILD INDEX", "Changed index " + index + " | size = "+room.getQueue().size());
                 // BE AWARE THAT ALL SUGGESTION CHANGES
                 room.getQueue().get(Integer.parseInt(snapshot.getKey())).setVotesDown(suggestion.getVotesDown());
 
@@ -117,6 +119,8 @@ public class RoomFragment extends Fragment {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                int index = Integer.parseInt(snapshot.getKey());
+                Log.i("CHILD INDEX", "Removed index " + index + " | size = "+room.getQueue().size());
                 // need to remove this suggestion from my suggestion queue
                 room.removeFromQueue(suggestion);
                 suggestionAdapter.notifyDataSetChanged();
