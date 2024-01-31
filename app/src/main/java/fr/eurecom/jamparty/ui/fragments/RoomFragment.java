@@ -1,6 +1,5 @@
 package fr.eurecom.jamparty.ui.fragments;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,7 +23,6 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -48,9 +45,10 @@ public class RoomFragment extends Fragment {
     private FragmentRoomBinding binding;
     public NavController fragmentController;
     public SuggestionAdapter suggestionAdapter;
-    public Room room;
-    private PopupWindow popupWindow;
 
+    public Room room;
+    private Thread roomChecker;
+    private boolean killThread = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -73,21 +71,7 @@ public class RoomFragment extends Fragment {
         binding.suggestions.setAdapter(suggestionAdapter);
 
         DatabaseReference roomRef = MainActivity.ROOMS_REF.child(this.room.getId());
-        /*roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Room roomDb = snapshot.getValue(Room.class);
-                if(suggestionAdapter.getRoom() == null) {
-                    suggestionAdapter.setRoom(room);
-                    suggestionAdapter.notifyDataSetChanged();
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Database Error", error.getMessage());
-            }
-        });*/
         roomRef.addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
@@ -110,6 +94,7 @@ public class RoomFragment extends Fragment {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 int index = Integer.parseInt(snapshot.getKey());
+                Log.i("CHILD INDEX", String.valueOf(index));
                 if (index >= room.getQueue().size()) {
                     room.addToQueue(suggestion);
                 }
@@ -217,7 +202,7 @@ public class RoomFragment extends Fragment {
         Toast endToast = Toast.makeText(requireContext(), "The room is terminated", Toast.LENGTH_SHORT);
         Runnable runThread = () -> {
             long sleepTime = 1000;
-            while (true) {
+            while (!killThread) {
                 try {
                     Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
@@ -227,7 +212,7 @@ public class RoomFragment extends Fragment {
                 User user = MainActivity.getUser();
                 long currentTime = System.currentTimeMillis();
                 long closeTime = room.getCloseTime();
-                Log.i("RoomEnd", String.valueOf(closeTime-currentTime));
+                Log.i("ROOM TERM", String.valueOf(closeTime-currentTime));
                 if (currentTime >= closeTime) {
                     RoomUserManager.userExitRoom(user, room);
                     endToast.show();
@@ -235,7 +220,7 @@ public class RoomFragment extends Fragment {
                 }
             }
         };
-        Thread roomChecker = new Thread(runThread);
+        roomChecker = new Thread(runThread);
         roomChecker.start();
         return root;
     }
@@ -243,6 +228,7 @@ public class RoomFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        killThread = true;
         binding = null;
     }
 

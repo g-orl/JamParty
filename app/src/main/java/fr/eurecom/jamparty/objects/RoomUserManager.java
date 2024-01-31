@@ -1,8 +1,5 @@
 package fr.eurecom.jamparty.objects;
 
-import fr.eurecom.jamparty.objects.Room;
-import fr.eurecom.jamparty.objects.User;
-
 public class RoomUserManager {
     public static int OPERATION_OK = 0;
     public static int ROOM_FULL = 1;

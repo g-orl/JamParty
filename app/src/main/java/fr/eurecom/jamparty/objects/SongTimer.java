@@ -2,7 +2,6 @@ package fr.eurecom.jamparty.objects;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import fr.eurecom.jamparty.MainActivity;
