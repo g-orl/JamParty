@@ -75,8 +75,9 @@ public class RoomFragment extends Fragment {
         roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Room room = snapshot.getValue(Room.class);
+                Room roomDb = snapshot.getValue(Room.class);
                 if(suggestionAdapter.getRoom() == null) {
+                    room = roomDb;
                     suggestionAdapter.setRoom(room);
                     suggestionAdapter.notifyDataSetChanged();
                 }
