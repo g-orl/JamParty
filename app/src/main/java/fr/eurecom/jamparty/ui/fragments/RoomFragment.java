@@ -23,6 +23,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -90,6 +91,17 @@ public class RoomFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 
+        roomRef.child("queue").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i("CHILD", "Updating entire array list");
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    room.setQueue(childSnapshot.getValue(ArrayList.class));
+                }
+            }
+            @Override public void onCancelled(DatabaseError databaseError) { }
+        });
+
         roomRef.child("queue").addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
@@ -117,7 +129,7 @@ public class RoomFragment extends Fragment {
                     tmp.setUserId(suggestion.getUri());
                     tmp.setVotesDown(suggestion.getVotesDown());
                     tmp.setImage_url(suggestion.getImage_url());
-                }else{
+                } else {
                     room.addToQueue(suggestion);
                 }
                 suggestionAdapter.notifyDataSetChanged();
