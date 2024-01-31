@@ -81,6 +81,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
     public SuggestionAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.memory_song, parent, false);
         ViewHolder ret = new ViewHolder(view);
+        /*
         ret.popupView = caller.getLayoutInflater().inflate(R.layout.suggestion_popup, null);
         ret.popupView.findViewById(R.id.dislike_button).setOnClickListener(new View.OnClickListener() {
             private boolean isDisliked = false;
@@ -100,19 +101,20 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
                 room.pushSongsToDb();
             }
         });
+        */
         return ret;
     }
 
     @Override
     public void onBindViewHolder(@NonNull SuggestionAdapter.ViewHolder holder, int position) {
-        Suggestion song = suggestions.get(position);
-        if(song == null) return;
+        Suggestion suggestion = suggestions.get(position);
+        if(suggestion == null) return;
 
         // here you can set the callback method
-        holder.memorySongName.setText(song.getName());
-        holder.memorySongArtist.setText(song.getAuthor());
+        holder.memorySongName.setText(suggestion.getName());
+        holder.memorySongArtist.setText(suggestion.getAuthor());
 
-        Glide.with(holder.itemView).load(song.getImage_url()).into(holder.memorySongImage);
+        Glide.with(holder.itemView).load(suggestion.getImage_url()).into(holder.memorySongImage);
 
         // TODO fix on click listener
 
@@ -140,7 +142,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
             @Override
             public boolean onLongClick(View v) {
                 // Create and configure the popup window
-                holder.suggestion = song;
+                holder.suggestion = suggestion;
                 PopupWindow popupWindow = new PopupWindow(holder.popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
                 popupWindow.setOutsideTouchable(true);
                 // Show the popup window at the specified location
@@ -149,18 +151,26 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
                 return true;
             }
         });
-    }
 
-    public void showPopupWindow(View anchorView, Suggestion suggestion) {
-        // Create a popup window
         View popupView = caller.getLayoutInflater().inflate(R.layout.suggestion_popup, null);
-
-        // Create and configure the popup window
-        PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setOutsideTouchable(true);
-
-        // Show the popup window at the specified location
-        popupWindow.showAsDropDown(anchorView, 75, -anchorView.getHeight()+75);
+        popupView.findViewById(R.id.dislike_button).setOnClickListener(new View.OnClickListener() {
+            private boolean isDisliked = false;
+            @Override
+            public void onClick(View v) {
+                // dislike the song
+                if (isDisliked) {
+                    if(suggestion != null)
+                        suggestion.upvote();
+                    popupView.findViewById(R.id.dislike_button).setBackground(caller.getContext().getDrawable(R.drawable.thumb_nobg));
+                } else {
+                    if(suggestion != null)
+                        suggestion.downvote();
+                    popupView.findViewById(R.id.dislike_button).setBackground(caller.getContext().getDrawable(R.drawable.thumb_red_nobg));
+                }
+                isDisliked = !isDisliked;
+                room.pushSongsToDb();
+            }
+        });
     }
 
     @Override
