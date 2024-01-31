@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,8 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
         public ImageView memorySongImage;
         public TextView memorySongName;
         public TextView memorySongArtist;
+        public View popupView;
+        public Suggestion suggestion = null;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -71,11 +74,32 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
             memorySongImage = itemView.findViewById(R.id.memory_song_image);
         }
     }
+
     @NonNull
     @Override
     public SuggestionAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.memory_song, parent, false);
-        return new ViewHolder(view);
+        ViewHolder ret = new ViewHolder(view);
+        ret.popupView = caller.getLayoutInflater().inflate(R.layout.suggestion_popup, null);
+        ret.popupView.findViewById(R.id.dislike_button).setOnClickListener(new View.OnClickListener() {
+            private boolean isDisliked = false;
+            @Override
+            public void onClick(View v) {
+                // dislike the song
+                if (isDisliked) {
+                    if(ret.suggestion != null)
+                        ret.suggestion.upvote();
+                    ret.popupView.findViewById(R.id.dislike_button).setBackground(caller.getContext().getDrawable(R.drawable.thumb_nobg));
+                } else {
+                    if(ret.suggestion != null)
+                        ret.suggestion.downvote();
+                    ret.popupView.findViewById(R.id.dislike_button).setBackground(caller.getContext().getDrawable(R.drawable.thumb_red_nobg));
+                }
+                isDisliked = !isDisliked;
+                room.pushSongsToDb();
+            }
+        });
+        return ret;
     }
 
     @Override
@@ -114,10 +138,28 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
         holder.memorySongImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                caller.showPopupWindow(v, song);
+                // Create and configure the popup window
+                holder.suggestion = song;
+                PopupWindow popupWindow = new PopupWindow(holder.popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                popupWindow.setOutsideTouchable(true);
+                // Show the popup window at the specified location
+                popupWindow.showAsDropDown(v, 75, -v.getHeight()+75);
+                //showPopupWindow(v, song);
                 return true;
             }
         });
+    }
+
+    public void showPopupWindow(View anchorView, Suggestion suggestion) {
+        // Create a popup window
+        View popupView = caller.getLayoutInflater().inflate(R.layout.suggestion_popup, null);
+
+        // Create and configure the popup window
+        PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setOutsideTouchable(true);
+
+        // Show the popup window at the specified location
+        popupWindow.showAsDropDown(anchorView, 75, -anchorView.getHeight()+75);
     }
 
     @Override

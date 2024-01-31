@@ -1,5 +1,6 @@
 package fr.eurecom.jamparty.ui.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -271,17 +272,16 @@ public class RoomFragment extends Fragment {
     }
 
 
-    public void showPopupWindow(View anchorView, Suggestion suggestion) {
+    /*public void showPopupWindow(View anchorView, Suggestion suggestion) {
         // Create a popup window
         View popupView = getLayoutInflater().inflate(R.layout.suggestion_popup, null);
 
         // Create and configure the popup window
         popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.popup_background));
 
         // Show the popup window at the specified location
-        popupWindow.showAsDropDown(anchorView, 0, -anchorView.getHeight());
+        popupWindow.showAsDropDown(anchorView, 75, -anchorView.getHeight()+75);
 
         popupView.findViewById(R.id.dislike_button).setOnClickListener(new View.OnClickListener() {
             private boolean isDisliked = false;
@@ -290,14 +290,14 @@ public class RoomFragment extends Fragment {
                 // dislike the song
                 if (isDisliked) {
                     suggestion.upvote();
-                    popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.thumb_nobg));
+                    popupView.findViewById(R.id.dislike_button).setBackground(getContext().getDrawable(R.drawable.thumb_nobg));
                 } else {
                     suggestion.downvote();
-                    popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.thumb_red_nobg));
+                    popupView.findViewById(R.id.dislike_button).setBackground(getContext().getDrawable(R.drawable.thumb_red_nobg));
                 }
                 isDisliked = !isDisliked;
                 room.pushSongsToDb();
             }
         });
-    }
+    }*/
 }
