@@ -5,13 +5,7 @@ import androidx.annotation.Nullable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Predicate;
 
 import fr.eurecom.jamparty.MainActivity;

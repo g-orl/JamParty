@@ -15,21 +15,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
-import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
-
-import java.util.ArrayList;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.objects.Hasher;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.RoomUserManager;
-import fr.eurecom.jamparty.ui.home.HomeFragment;
+
 public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     private List<Room> rooms;
     private NavController fragmentController;
