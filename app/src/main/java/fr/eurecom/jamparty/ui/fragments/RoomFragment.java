@@ -117,6 +117,8 @@ public class RoomFragment extends Fragment {
                     tmp.setUserId(suggestion.getUri());
                     tmp.setVotesDown(suggestion.getVotesDown());
                     tmp.setImage_url(suggestion.getImage_url());
+                }else{
+                    room.addToQueue(suggestion);
                 }
                 suggestionAdapter.notifyDataSetChanged();
             }
