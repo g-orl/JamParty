@@ -99,6 +99,7 @@ public class RoomFragment extends Fragment {
                 suggestionAdapter.notifyDataSetChanged();
                 // need to remove this suggestion from my suggestion queue
                 if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
+                    Log.i("TIMER", "Starting timer for "+suggestion.getName()+" | "+suggestion.getAuthor());
                     SongTimer task = new SongTimer(room, room.findSuggestion(suggestion));
                     new Timer().schedule(task, 15000);
                 }

@@ -1,5 +1,7 @@
 package fr.eurecom.jamparty.objects;
 
+import android.util.Log;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.TimerTask;
@@ -27,6 +29,7 @@ public class SongTimer extends TimerTask {
             room.removeFromQueue(suggestion);
             // MainActivity.ROOMS_REF.child(room.getId()).setValue(room);
             room.pushSongsToDb();
+            Log.i("TIMER", "Completed timer for " + suggestion.getName()+" | "+suggestion.getAuthor());
         }
     }
 }
