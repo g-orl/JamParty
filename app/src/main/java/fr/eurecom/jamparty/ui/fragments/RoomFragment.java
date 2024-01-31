@@ -77,7 +77,6 @@ public class RoomFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Room roomDb = snapshot.getValue(Room.class);
                 if(suggestionAdapter.getRoom() == null) {
-                    room = roomDb;
                     suggestionAdapter.setRoom(room);
                     suggestionAdapter.notifyDataSetChanged();
                 }
