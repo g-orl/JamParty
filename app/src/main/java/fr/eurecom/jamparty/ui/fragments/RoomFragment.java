@@ -93,8 +93,7 @@ public class RoomFragment extends Fragment {
         roomRef.child("queue").addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
-                int index = Integer.parseInt(snapshot.getKey());
-                Log.i("CHILD INDEX", "Added index " + index + " | size = "+room.getQueue().size());
+                Log.i("CHILD INDEX", "Added index " + snapshot.getKey() + " | size = "+room.getQueue().size());
                 if (room.findSuggestion(suggestion) == null)
                     room.addToQueue(suggestion);
                 suggestionAdapter.notifyDataSetChanged();
@@ -107,8 +106,7 @@ public class RoomFragment extends Fragment {
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
-                int index = Integer.parseInt(snapshot.getKey());
-                Log.i("CHILD INDEX", "Changed index " + index + " | size = "+room.getQueue().size());
+                Log.i("CHILD INDEX", "Changed index " + snapshot.getKey() + " | size = "+room.getQueue().size());
                 // BE AWARE THAT ALL SUGGESTION CHANGES
                 Suggestion tmp = room.findSuggestion(suggestion);
                 if (tmp != null)
@@ -118,8 +116,7 @@ public class RoomFragment extends Fragment {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
-                int index = Integer.parseInt(snapshot.getKey());
-                Log.i("CHILD INDEX", "Removed index " + index + " | size = "+room.getQueue().size());
+                Log.i("CHILD INDEX", "Removed index " + snapshot.getKey() + " | size = "+room.getQueue().size());
                 // need to remove this suggestion from my suggestion queue
                 room.removeFromQueue(suggestion);
                 suggestionAdapter.notifyDataSetChanged();
