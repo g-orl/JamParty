@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                                             Room room = snapshot.getValue(Room.class);
                                             Bundle bundle = new Bundle();
                                             bundle.putParcelable("room", room);
-                                            RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
+                                            RoomUserManager.userJoinRoom(logged_in_user, room, RoomUserManager.userOwnsRoom(logged_in_user, room));
                                             navController.navigate(R.id.navigation_room, bundle);
                                         }
 

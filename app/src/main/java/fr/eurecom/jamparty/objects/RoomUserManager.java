@@ -47,7 +47,7 @@ public class RoomUserManager {
     }
 
     public static boolean userOwnsRoom(User user, Room room) {
-        return user.getId() == room.getOwnerId();
+        return user.getId().equals(room.getOwnerId());
     }
 
 
