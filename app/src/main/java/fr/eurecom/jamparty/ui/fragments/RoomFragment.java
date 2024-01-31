@@ -111,44 +111,40 @@ public class RoomFragment extends Fragment {
                     room.addToQueue(suggestion);
                 suggestionAdapter.notifyDataSetChanged();
                 // need to remove this suggestion from my suggestion queue
-                if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
+                //if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
                     Log.i("TIMER", "Starting timer for "+suggestion.getName()+" | "+suggestion.getAuthor());
                     SongTimer task = new SongTimer(room, room.findSuggestion(suggestion));
                     new Timer().schedule(task, 15000);
-                }
+                //}
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Suggestion suggestion = snapshot.getValue(Suggestion.class);
-                    Log.i("CHILD INDEX", "Changed ("+")" + suggestion.getName() + " | size = "+room.getQueue().size());
-                    // BE AWARE THAT ALL SUGGESTION CHANGES
-                    Suggestion tmp = room.findSuggestion(suggestion);
-                    if (tmp != null) {
-                        tmp.setAuthor(suggestion.getAuthor());
-                        tmp.setName(suggestion.getName());
-                        tmp.setUri(suggestion.getUri());
-                        tmp.setUserId(suggestion.getUri());
-                        tmp.setVotesDown(suggestion.getVotesDown());
-                        tmp.setImage_url(suggestion.getImage_url());
-                    } else {
-                        room.addToQueue(suggestion);
-                    }
-                    suggestionAdapter.notifyDataSetChanged();
+                Suggestion suggestion = dataSnapshot.getValue(Suggestion.class);
+                Log.i("CHILD INDEX", "Changed ("+")" + suggestion.getName() + " | size = "+room.getQueue().size());
+                // BE AWARE THAT ALL SUGGESTION CHANGES
+                Suggestion tmp = room.findSuggestion(suggestion);
+                if (tmp != null) {
+                    tmp.setAuthor(suggestion.getAuthor());
+                    tmp.setName(suggestion.getName());
+                    tmp.setUri(suggestion.getUri());
+                    tmp.setUserId(suggestion.getUri());
+                    tmp.setVotesDown(suggestion.getVotesDown());
+                    tmp.setImage_url(suggestion.getImage_url());
+                } else {
+                    room.addToQueue(suggestion);
                 }
+                suggestionAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Suggestion suggestion = snapshot.getValue(Suggestion.class);
-                    Log.i("CHILD INDEX", "Remove " + suggestion.getName() + " | size = "+room.getQueue().size());
-                    // need to remove this suggestion from my suggestion queue
-                    room.removeFromQueue(suggestion);
-                    suggestionAdapter.notifyDataSetChanged();
-                    Log.i("CHILD INDEX", "Size end of remove = "+room.getQueue().size());
-                    // TODO save the song into the played songs
-                }
+                Suggestion suggestion = dataSnapshot.getValue(Suggestion.class);
+                Log.i("CHILD INDEX", "Remove " + suggestion.getName() + " | size = "+room.getQueue().size());
+                // need to remove this suggestion from my suggestion queue
+                room.removeFromQueue(suggestion);
+                suggestionAdapter.notifyDataSetChanged();
+                Log.i("CHILD INDEX", "Size end of remove = "+room.getQueue().size());
+                // TODO save the song into the played songs
             }
             @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Log.i("TIMER", "MOVED PORCODDIOOOOOOO");

@@ -19,14 +19,15 @@ public class SongTimer extends TimerTask {
     @Override
     public void run() {
         // need to add the song to spotify if no dislikes are added
-        if(room.getOwnerId().compareTo(MainActivity.USER_ID) == 0){
+        room.removeFromQueue(suggestion);
+        if(RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)){
             if(suggestion.getVotesDown() == 0){
                 // song did not get downvoted so can add to the spotify queue
                 room.addPlayedSong(suggestion);
                 new SpotifyApiPostTask(res -> {}).execute(URLEncoder.encode(suggestion.getUri(), StandardCharsets.UTF_8));
             }
             // owner also removes the song from the suggestion queue and puts it in the played songs if it was added
-            room.removeFromQueue(suggestion);
+
             // MainActivity.ROOMS_REF.child(room.getId()).setValue(room);
             room.pushSongsToDb();
             Log.i("TIMER", "Completed timer for " + suggestion.getName()+" | "+suggestion.getAuthor());
