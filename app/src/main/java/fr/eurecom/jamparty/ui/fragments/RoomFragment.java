@@ -94,14 +94,14 @@ public class RoomFragment extends Fragment {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 int index = Integer.parseInt(snapshot.getKey());
-                Log.i("CHILD INDEX", String.valueOf(index));
+                Log.i("CHILD INDEX", index+" | "+room.getQueue().size());
                 if (index >= room.getQueue().size()) {
                     room.addToQueue(suggestion);
                 }
                 suggestionAdapter.notifyDataSetChanged();
                 // need to remove this suggestion from my suggestion queue
                 if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
-                    SongTimer task = new SongTimer(room, room.getQueue().get(Integer.parseInt(snapshot.getKey())));
+                    SongTimer task = new SongTimer(room, room.getQueue().get(index));
                     new Timer().schedule(task, 15000);
                 }
             }
