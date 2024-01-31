@@ -103,12 +103,12 @@ public class RoomFragment extends Fragment {
 
         MainActivity.ROOMS_REF.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                // Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 // need to remove this suggestion from my suggestion queue
-
                 suggestionAdapter.notifyDataSetChanged();
-                SongTimer task = new SongTimer(room, room.getQueue().get(Integer.parseInt(snapshot.getKey())));
-                new Timer().schedule(task, 15000);
+                if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
+                    SongTimer task = new SongTimer(room, room.getQueue().get(Integer.parseInt(snapshot.getKey())));
+                    new Timer().schedule(task, 15000);
+                }
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -250,10 +250,6 @@ public class RoomFragment extends Fragment {
                 long closeTime = room.getCloseTime();
                 Log.i("RoomEnd", String.valueOf(closeTime-currentTime));
                 if (currentTime >= closeTime) {
-                    if (RoomUserManager.userOwnsRoom(user, room)) {
-                        room.setTerminated(true);
-                        room.pushTerminatedToDb();
-                    }
                     RoomUserManager.userExitRoom(user, room);
                     endToast.show();
                     break;

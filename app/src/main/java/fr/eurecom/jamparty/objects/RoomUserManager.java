@@ -38,6 +38,10 @@ public class RoomUserManager {
         user.setOwnedRoomId(null);
         user.setCurrentRoomId(null);
         room.getUserIds().remove(userId);   // check if this works
+        if (RoomUserManager.userOwnsRoom(user, room)) {
+            room.setTerminated(true);
+            room.pushTerminatedToDb();
+        }
         room.pushUsersToDb();
         user.pushToDb();
     }
