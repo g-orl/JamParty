@@ -101,13 +101,7 @@ public class Room implements Parcelable {
 
     public void addToQueue(Suggestion song) { this.queue.add(song); }
     public void removeFromQueue(Suggestion song){
-        this.queue.removeIf(new Predicate<Suggestion>() {
-            @Override
-            public boolean test(Suggestion suggestion) {
-                // removes the same user suggestion on the same song
-                return suggestion.getUri().compareTo(song.getUri()) == 0 && suggestion.getUserId().compareTo(song.getUserId()) == 0;
-            }
-        });
+        this.queue.remove(song);
     }
 
     public int countParticipants() { return userIds.size(); }

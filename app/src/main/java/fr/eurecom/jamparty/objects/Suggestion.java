@@ -66,4 +66,13 @@ public class Suggestion extends Song implements Parcelable {
         votesDown = in.readInt();
         userId = in.readString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Suggestion) {
+            Suggestion os = (Suggestion) o;
+            return os.userId.equals(userId) && os.getUri().equals(getUri());
+        }
+        return false;
+    }
 }
