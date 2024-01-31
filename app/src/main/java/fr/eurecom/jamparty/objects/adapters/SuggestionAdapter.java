@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,10 +30,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.eurecom.jamparty.R;
+import fr.eurecom.jamparty.SpotifyApiPostTask;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.Song;
 import fr.eurecom.jamparty.objects.Suggestion;
@@ -76,6 +81,8 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull SuggestionAdapter.ViewHolder holder, int position) {
         Suggestion song = suggestions.get(position);
+        if(song == null) return;
+
         // here you can set the callback method
         holder.memorySongName.setText(song.getName());
         holder.memorySongArtist.setText(song.getAuthor());

@@ -5,8 +5,14 @@ import androidx.annotation.Nullable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Predicate;
 
 import fr.eurecom.jamparty.MainActivity;
 
@@ -100,6 +106,15 @@ public class Room implements Parcelable {
     public void setTerminated(boolean terminated) { this.terminated = terminated; }
 
     public void addToQueue(Suggestion song) { this.queue.add(song); }
+    public void removeFromQueue(Suggestion song){
+        this.queue.removeIf(new Predicate<Suggestion>() {
+            @Override
+            public boolean test(Suggestion suggestion) {
+                // removes the same user suggestion on the same song
+                return suggestion.getUri().compareTo(song.getUri()) == 0 && suggestion.getUserId().compareTo(song.getUserId()) == 0;
+            }
+        });
+    }
 
     public int getNumParticipants() { return userIds.size(); }
 
@@ -187,6 +202,22 @@ public class Room implements Parcelable {
 
     public void setCloseTime(long closeTime) {
         this.closeTime = closeTime;
+    }
+    public ArrayList<String> songsToAdd(ArrayList<String> songsUri){
+        // return all songs in suggestions that are not in songsUri
+
+        ArrayList<String> toAdd = new ArrayList<>();
+            for(Suggestion suggestion: this.queue){
+                if(!songsUri.contains(suggestion.getUri())){
+                    toAdd.add(suggestion.getUri());
+                }
+            }
+        return toAdd;
+    }
+
+    public void addPlayedSong(Suggestion suggestion){
+        // need to add the passed suggestion into the played songs list
+        this.played.add(suggestion);
     }
 
     public void pushTerminatedToDb() {

@@ -39,25 +39,45 @@ public class SpotifyApiTask extends AsyncTask<String, String, String> {
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Authorization", "Bearer " + MainActivity.ACCESS_TOKEN);
             urlConnection.setInstanceFollowRedirects(true);
-            try {
-                InputStream in = urlConnection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                StringBuilder stringBuilder = new StringBuilder();
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-
-                    stringBuilder.append(line).append("\n");
+            int responseCode = urlConnection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // Read and process the response
+                try (InputStream inputStream = urlConnection.getInputStream()) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+                    StringBuilder response = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    System.out.println("Queue response: " + response.toString());
+                    urlConnection.disconnect();
+                    return response.toString();
                 }
-
-                return stringBuilder.toString();
-            } finally {
-                urlConnection.disconnect();
+            } else {
+                // Read and log the error response
+                try (InputStream errorStream = urlConnection.getErrorStream()) {
+                    if (errorStream != null) {
+                        BufferedReader errorReader = new BufferedReader(new InputStreamReader(errorStream));
+                        String line;
+                        StringBuilder errorResponse = new StringBuilder();
+                        while ((line = errorReader.readLine()) != null) {
+                            errorResponse.append(line);
+                        }
+                        System.err.println("Error response: " + errorResponse.toString());
+                        urlConnection.disconnect();
+                        return errorResponse.toString();
+                    } else {
+                        System.err.println("No error response stream available.");
+                        urlConnection.disconnect();
+                        return null;
+                    }
+                }
             }
         } catch (IOException e) {
-            Log.e(TAG, "Error fetching data from Spotify API", e);
-            return null;
+            e.printStackTrace();
         }
+        return null;
     }
 
     @Override

@@ -24,8 +24,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.database.ChildEventListener;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,7 +36,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.R;
@@ -47,6 +56,7 @@ import fr.eurecom.jamparty.objects.Suggestion;
 import fr.eurecom.jamparty.objects.adapters.SuggestionAdapter;
 import fr.eurecom.jamparty.databinding.FragmentRoomBinding;
 import fr.eurecom.jamparty.ui.home.HomeFragment;
+import fr.eurecom.jamparty.SpotifyApiPostTask;
 
 public class RoomFragment extends Fragment {
     public ArrayList<Song> songs;
@@ -80,7 +90,6 @@ public class RoomFragment extends Fragment {
         roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // TODO: update adapters and other stuff here!!!
                 Room room = snapshot.getValue(Room.class);
                 suggestionAdapter.setRoom(room);
                 suggestionAdapter.notifyDataSetChanged();
@@ -107,6 +116,29 @@ public class RoomFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 
+        MainActivity.ROOMS_REF.child(room.getId()).child("queue").addChildEventListener(new ChildEventListener() {
+            @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                // need to remove this suggestion from my suggestion queue
+                room.removeFromQueue(suggestion);
+                suggestionAdapter.notifyDataSetChanged();
+                // TODO save the song into the played songs
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
+        });
+
         LinearLayoutManager songLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.songList.setLayoutManager(songLayoutManager);
 
@@ -122,7 +154,6 @@ public class RoomFragment extends Fragment {
                 // TODO go back to home fragment
                 fragmentController.navigate(R.id.navigation_home);
                 RoomUserManager.userExitRoom(MainActivity.getUser(), room);
-
             }
         });
 

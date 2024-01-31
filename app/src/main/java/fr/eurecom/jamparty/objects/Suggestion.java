@@ -37,6 +37,8 @@ public class Suggestion extends Song implements Parcelable {
         this.userId = userId;
     }
 
+
+
     @Override
     public int describeContents() {
         return 0;
