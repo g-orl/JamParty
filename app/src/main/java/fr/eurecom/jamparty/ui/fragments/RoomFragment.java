@@ -95,9 +95,8 @@ public class RoomFragment extends Fragment {
                 Suggestion suggestion = snapshot.getValue(Suggestion.class);
                 int index = Integer.parseInt(snapshot.getKey());
                 Log.i("CHILD INDEX", "Added index " + index + " | size = "+room.getQueue().size());
-                if (index >= room.getQueue().size()) {
+                if (room.findSuggestion(suggestion) == null)
                     room.addToQueue(suggestion);
-                }
                 suggestionAdapter.notifyDataSetChanged();
                 // need to remove this suggestion from my suggestion queue
                 if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
@@ -111,9 +110,9 @@ public class RoomFragment extends Fragment {
                 int index = Integer.parseInt(snapshot.getKey());
                 Log.i("CHILD INDEX", "Changed index " + index + " | size = "+room.getQueue().size());
                 // BE AWARE THAT ALL SUGGESTION CHANGES
-                room.getQueue().get(Integer.parseInt(snapshot.getKey())).setVotesDown(suggestion.getVotesDown());
-
-                // suggestionAdapter.notifyDataSetChanged();
+                Suggestion tmp = room.findSuggestion(suggestion);
+                if (tmp != null)
+                    tmp.setVotesDown(suggestion.getVotesDown());
             }
 
             @Override
@@ -127,11 +126,7 @@ public class RoomFragment extends Fragment {
                 Log.i("CHILD INDEX", "Size end of remove = "+room.getQueue().size());
                 // TODO save the song into the played songs
             }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Suggestion suggestion = snapshot.getValue(Suggestion.class);
-            }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
             @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
 

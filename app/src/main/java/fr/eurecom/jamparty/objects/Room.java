@@ -103,6 +103,9 @@ public class Room implements Parcelable {
     public void removeFromQueue(Suggestion song){
         this.queue.remove(song);
     }
+    public Suggestion findSuggestion(Suggestion suggestion) {
+        return this.queue.stream().filter(s -> s.equals(suggestion)).findFirst().orElse(null);
+    }
 
     public int countParticipants() { return userIds.size(); }
 
