@@ -73,36 +73,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void addDummyData(boolean execute) {
         if(!execute) return;
-        FirebaseDatabase db = FirebaseDatabase.getInstance(DATABASE_URL);
-        DatabaseReference usersRef = db.getReference(USERS_TABLE);
-        DatabaseReference roomsRef = db.getReference(ROOMS_TABLE);
-
-        String key = "user"+usersRef.push().getKey();
+        String key = "user"+USERS_REF.push().getKey();
         User user1 = new User(key, 43.5722, 7.1030);
-        key = "user"+usersRef.push().getKey();
+        key = "user"+USERS_REF.push().getKey();
         User user2 = new User(key, 43.6144, 7.0711);
-        key = "user"+usersRef.push().getKey();
+        key = "user"+USERS_REF.push().getKey();
         User user3 = new User(key, 43.5841, 7.1184);
 
 
-        key = "room"+roomsRef.push().getKey();
+        key = "room"+ROOMS_REF.push().getKey();
         Room room1 = new Room(key, "LucaRoom", Hasher.hashString("andrea"), 16, 1000 * 60 * 60 * 4);
-        key = "room"+roomsRef.push().getKey();
+        key = "room"+ROOMS_REF.push().getKey();
         Room room2 = new Room(key, "EureRoom", Hasher.hashString(""), 16, 1000 * 60 * 60 * 24 * 5);
-        key = "room"+roomsRef.push().getKey();
+        key = "room"+ROOMS_REF.push().getKey();
         Room room3 = new Room(key, "RoomGare", Hasher.hashString(""), 16, 1000 * 60 * 60 * 24 * 100);
 
         RoomUserManager.userJoinRoom(user1, room1, true);
         RoomUserManager.userJoinRoom(user2, room2, true);
         RoomUserManager.userJoinRoom(user3, room3, true);
 
-        usersRef.child(user1.getId()).setValue(user1);
-        usersRef.child(user2.getId()).setValue(user2);
-        usersRef.child(user3.getId()).setValue(user3);
+        USERS_REF.child(user1.getId()).setValue(user1);
+        USERS_REF.child(user2.getId()).setValue(user2);
+        USERS_REF.child(user3.getId()).setValue(user3);
 
-        roomsRef.child(room1.getId()).setValue(room1);
-        roomsRef.child(room2.getId()).setValue(room2);
-        roomsRef.child(room3.getId()).setValue(room3);
+        ROOMS_REF.child(room1.getId()).setValue(room1);
+        ROOMS_REF.child(room2.getId()).setValue(room2);
+        ROOMS_REF.child(room3.getId()).setValue(room3);
     }
 
     private void connected(){

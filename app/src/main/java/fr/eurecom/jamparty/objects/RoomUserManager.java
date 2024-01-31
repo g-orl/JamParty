@@ -10,7 +10,7 @@ public class RoomUserManager {
         if(user == null) throw new NullPointerException("user is null");
         if(room == null) throw new NullPointerException("room is null");
         if(room.isTerminated()) throw new RuntimeException("user can't join a terminated room");
-        if(room.getNumParticipants() == room.getMaxParticipants())
+        if(room.countParticipants() == room.getMaxParticipants())
             return ROOM_FULL;
         String roomId = room.getId();
         String userId = user.getId();

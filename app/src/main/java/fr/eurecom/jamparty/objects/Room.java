@@ -116,7 +116,7 @@ public class Room implements Parcelable {
         });
     }
 
-    public int getNumParticipants() { return userIds.size(); }
+    public int countParticipants() { return userIds.size(); }
 
     public ArrayList<Suggestion> getQueue() { return this.queue; }
 
