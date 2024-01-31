@@ -68,6 +68,7 @@ public class RoomFragment extends Fragment {
 
         SongAdapter adapter = new SongAdapter(songs, this);
         suggestionAdapter = new SuggestionAdapter(room.getQueue(), this);
+        suggestionAdapter.setRoom(room);
         binding.songList.setAdapter(adapter);
         binding.suggestions.setAdapter(suggestionAdapter);
 
