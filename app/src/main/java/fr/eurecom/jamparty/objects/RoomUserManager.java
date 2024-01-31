@@ -4,11 +4,14 @@ import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.User;
 
 public class RoomUserManager {
-    public static void userJoinRoom(User user, Room room, boolean owner) {
+    public static int OPERATION_OK = 0;
+    public static int ROOM_FULL = 1;
+    public static int userJoinRoom(User user, Room room, boolean owner) {
         if(user == null) throw new NullPointerException("user is null");
         if(room == null) throw new NullPointerException("room is null");
         if(room.isTerminated()) throw new RuntimeException("user can't join a terminated room");
-        if(room.getNumParticipants() == room.getMaxParticipants()) throw new RuntimeException("user can't join a full room");
+        if(room.getNumParticipants() == room.getMaxParticipants())
+            return ROOM_FULL;
         String roomId = room.getId();
         String userId = user.getId();
         user.setCurrentRoomId(roomId);
@@ -24,6 +27,7 @@ public class RoomUserManager {
 
         room.pushUsersToDb();
         user.pushToDb();
+        return OPERATION_OK;
     }
 
     public static void userExitRoom(User user, Room room) {

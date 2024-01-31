@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import fr.eurecom.jamparty.MainActivity;
 import fr.eurecom.jamparty.objects.adapters.MemoryAdapter;
@@ -36,42 +37,40 @@ public class DashboardFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        DashboardViewModel dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
-
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
         controller = NavHostFragment.findNavController(this);
 
         RecyclerView recyclerView = binding.recyclerView;
         ArrayList<Room> rooms = new ArrayList<>();
         MemoryAdapter memoryAdapter = new MemoryAdapter(rooms, controller);
-
         recyclerView.setAdapter(memoryAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
-        DatabaseReference roomsDb = database.getReference("Rooms");
-        roomsDb.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for(DataSnapshot roomSnapshot : snapshot.getChildren()) {
-                    Room room = roomSnapshot.getValue(Room.class);
-                    rooms.add(room);
+        User loggedInUser = MainActivity.getUser();
+        if (loggedInUser != null) {
+            ArrayList<String> history = loggedInUser.getRoomIdsHistory();
+            MainActivity.ROOMS_REF.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for(DataSnapshot roomSnapshot : snapshot.getChildren()) {
+                        Room room = roomSnapshot.getValue(Room.class);
+                        if (history.contains(room.getId()))
+                            rooms.add(room);
+                    }
+                    rooms.sort((r1, r2) -> (int)(r1.getCloseTime()-r2.getCloseTime()));
+                    memoryAdapter.notifyDataSetChanged();
                 }
-                memoryAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Database Error", error.getMessage());
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("Database Error", error.getMessage());
+                }
+            });
+        }
 
-        return root;
+        return binding.getRoot();
     }
 
     @Override

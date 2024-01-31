@@ -29,6 +29,7 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
 import fr.eurecom.jamparty.databinding.ActivityMainBinding;
+import fr.eurecom.jamparty.objects.Hasher;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.RoomUserManager;
 import fr.eurecom.jamparty.objects.User;
@@ -85,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         key = "room"+roomsRef.push().getKey();
-        Room room1 = new Room(key, "ItaRoom", "chiave", 16, 1000 * 60 * 60 * 4);
+        Room room1 = new Room(key, "LucaRoom", Hasher.hashString("andrea"), 16, 1000 * 60 * 60 * 4);
         key = "room"+roomsRef.push().getKey();
-        Room room2 = new Room(key, "FraRoom", "chiave_in_francese", 16, 1000 * 60 * 60 * 24 * 5);
+        Room room2 = new Room(key, "EureRoom", Hasher.hashString(""), 16, 1000 * 60 * 60 * 24 * 5);
         key = "room"+roomsRef.push().getKey();
-        Room room3 = new Room(key, "EngRoom", "key", 16, 1000 * 60 * 60 * 24 * 100);
+        Room room3 = new Room(key, "RoomGare", Hasher.hashString(""), 16, 1000 * 60 * 60 * 24 * 100);
 
         RoomUserManager.userJoinRoom(user1, room1, true);
         RoomUserManager.userJoinRoom(user2, room2, true);
@@ -167,15 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    /*
-    public void spawnJoin(View v) {
-        if(location == null)
-            return;
-        JoinFragment floatingFragment = new JoinFragment();
-        floatingFragment.show(getSupportFragmentManager(), "YourFloatingFragmentTag");
-    }
-    */
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 

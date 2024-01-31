@@ -50,7 +50,6 @@ public class HomeFragment extends Fragment {
     private LocationCallback locationCallback;
     private FusedLocationProviderClient fusedLocationClient;
     private Location location;
-    private FirebaseDatabase database;
     public static final double MAX_DIST_IN_METERS = 1000;
     public static String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
@@ -65,7 +64,6 @@ public class HomeFragment extends Fragment {
         this.inflater = inflater;
         this.container = container;
         this.fragmentController = NavHostFragment.findNavController(this);
-        this.database = FirebaseDatabase.getInstance(MainActivity.DATABASE_URL);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -143,9 +141,7 @@ public class HomeFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        DatabaseReference usersRef = database.getReference(MainActivity.USERS_TABLE);
-        DatabaseReference roomsRef = database.getReference(MainActivity.ROOMS_TABLE);
-        usersRef.orderByChild("latitude")
+        MainActivity.USERS_REF.orderByChild("latitude")
                 .startAt(latitude - 0.1)
                 .endAt(latitude + 0.1)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -167,13 +163,15 @@ public class HomeFragment extends Fragment {
 
                                 Log.i("Rooms", "Found room at " + roomLat + ", " + roomLng);
                                 CompletableFuture<Void> roomFuture = new CompletableFuture<>();
-                                roomsRef.child(user.getOwnedRoomId())
+                                MainActivity.ROOMS_REF.child(user.getOwnedRoomId())
                                         .addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot roomSnapshot) {
                                                 Room room = roomSnapshot.getValue(Room.class);
-                                                roomsArray.add(room);
-                                                roomFuture.complete(null);
+                                                if (!room.isFull()) {
+                                                    roomsArray.add(room);
+                                                    roomFuture.complete(null);
+                                                }
                                             }
                                             @Override
                                             public void onCancelled(@NonNull DatabaseError databaseError) {

@@ -193,4 +193,12 @@ public class Room implements Parcelable {
         MainActivity.ROOMS_REF.child(this.id+"/terminated").setValue(this.terminated);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Room ? ((Room)o).id.equals(id) : false;
+    }
+
+    public boolean isFull() {
+        return userIds.size() >= maxParticipants;
+    }
 }

@@ -90,8 +90,11 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                             if (room.getHash().equals(hash)) {
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelable("room", room);
-                                RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
-                                fragmentController.navigate(R.id.navigation_room, bundle);
+                                if (RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false) == RoomUserManager.OPERATION_OK)
+                                    fragmentController.navigate(R.id.navigation_room, bundle);
+                                else {
+                                    Toast.makeText(context, "Room is full", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Log.e("PasswordHash", room.getHash()+" - "+hash);
                                 Toast.makeText(context, "Wrong Password.", Toast.LENGTH_SHORT).show();
@@ -109,8 +112,11 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                 } else {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("room", room);
-                    RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false);
-                    fragmentController.navigate(R.id.navigation_room, bundle);
+                    if (RoomUserManager.userJoinRoom(MainActivity.getUser(), room, false) == RoomUserManager.OPERATION_OK)
+                        fragmentController.navigate(R.id.navigation_room, bundle);
+                    else {
+                        Toast.makeText(context, "Room is full", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
