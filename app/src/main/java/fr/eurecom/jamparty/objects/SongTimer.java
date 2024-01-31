@@ -34,7 +34,7 @@ public class SongTimer extends TimerTask {
             // owner also removes the song from the suggestion queue and puts it in the played songs if it was added
             room.removeFromQueue(suggestion);
 
-            MainActivity.ROOMS_REF.child(room.getId()).setValue(room);
+            // MainActivity.ROOMS_REF.child(room.getId()).setValue(room);
             room.pushSongsToDb();
             // caller.suggestionAdapter.notifyDataSetChanged();
 
