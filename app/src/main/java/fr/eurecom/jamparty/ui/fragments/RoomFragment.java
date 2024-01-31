@@ -110,8 +110,14 @@ public class RoomFragment extends Fragment {
                 Log.i("CHILD INDEX", "Changed index " + snapshot.getKey() + " | size = "+room.getQueue().size());
                 // BE AWARE THAT ALL SUGGESTION CHANGES
                 Suggestion tmp = room.findSuggestion(suggestion);
-                if (tmp != null)
+                if (tmp != null) {
+                    tmp.setAuthor(suggestion.getAuthor());
+                    tmp.setName(suggestion.getName());
+                    tmp.setUri(suggestion.getUri());
+                    tmp.setUserId(suggestion.getUri());
                     tmp.setVotesDown(suggestion.getVotesDown());
+                    tmp.setImage_url(suggestion.getImage_url());
+                }
             }
 
             @Override
@@ -124,7 +130,9 @@ public class RoomFragment extends Fragment {
                 Log.i("CHILD INDEX", "Size end of remove = "+room.getQueue().size());
                 // TODO save the song into the played songs
             }
-            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.i("TIMER", "MOVED PORCODDIOOOOOOO");
+            }
             @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
 
