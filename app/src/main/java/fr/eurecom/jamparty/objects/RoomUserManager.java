@@ -16,7 +16,8 @@ public class RoomUserManager {
         String userId = user.getId();
         user.setCurrentRoomId(roomId);
         if(owner) {
-            if(room.getOwnerId() != null) throw new IllegalStateException("you can't be owner of a room that is already owned");
+            if(room.getOwnerId() != null && !room.getOwnerId().equals(user.getId()))
+                throw new IllegalStateException("you can't be owner of a room that is already owned");
             user.setOwnedRoomId(roomId);
             room.setOwnerId(userId);
         } else {
