@@ -59,6 +59,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
     public void setRoom(Room room) {
         this.room = room;
     }
+    public Room getRoom() { return room; }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView memorySongImage;

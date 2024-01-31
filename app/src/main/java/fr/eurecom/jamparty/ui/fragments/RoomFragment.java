@@ -76,8 +76,10 @@ public class RoomFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Room room = snapshot.getValue(Room.class);
-                suggestionAdapter.setRoom(room);
-                suggestionAdapter.notifyDataSetChanged();
+                if(suggestionAdapter.getRoom() == null) {
+                    suggestionAdapter.setRoom(room);
+                    suggestionAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -86,7 +88,12 @@ public class RoomFragment extends Fragment {
             }
         });
         roomRef.addChildEventListener(new ChildEventListener() {
-            @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Suggestion suggestion = snapshot.getValue(Suggestion.class);
+                int index = Integer.parseInt(snapshot.getKey());
+                if (index >= room.getQueue().size())
+                    room.addToQueue(suggestion);
+            }
             @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 String childKey = snapshot.getKey();
                 if (childKey.equals("terminated")) {
