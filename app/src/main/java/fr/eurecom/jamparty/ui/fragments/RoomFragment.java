@@ -154,6 +154,26 @@ public class RoomFragment extends Fragment {
             @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
 
+        roomRef.child("userIds").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                String newUserId = snapshot.getValue(String.class);
+                if (!room.getUserIds().contains(newUserId)) {
+                    room.getUserIds().add(newUserId);
+                    Log.i("ROOM", "added " + newUserId + " | users in room = "  + room.getUserIds().size());
+                }
+            }
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                String removedUserId = snapshot.getValue(String.class);
+                if (room.getUserIds().remove(removedUserId))
+                    Log.i("ROOM", "removed " + removedUserId + " | users in room = "  + room.getUserIds().size());
+            }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
+        });
+
         LinearLayoutManager songLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.songList.setLayoutManager(songLayoutManager);
 
