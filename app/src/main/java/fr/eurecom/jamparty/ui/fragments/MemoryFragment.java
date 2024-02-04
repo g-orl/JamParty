@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import fr.eurecom.jamparty.R;
 import fr.eurecom.jamparty.objects.Room;
 import fr.eurecom.jamparty.objects.adapters.SongMemoryAdapter;
 import fr.eurecom.jamparty.databinding.FragmentMemoryBinding;
@@ -109,7 +111,13 @@ public class MemoryFragment extends Fragment {
                 startActivity(chooserIntent);
             }
         });
-
+        binding.memoryCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+                navController.navigate(R.id.navigation_dashboard);
+            }
+        });
         return root;
     }
 

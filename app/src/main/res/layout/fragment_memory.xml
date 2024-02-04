@@ -26,7 +26,7 @@
                 android:textStyle="bold" />
 
             <Space
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
@@ -34,8 +34,17 @@
                 android:id="@+id/memory_share_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="SHARE" />
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+            <Button
+                android:id="@+id/memory_close_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CLOSE" />
         </LinearLayout>
 
         <TextView
