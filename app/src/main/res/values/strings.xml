@@ -14,4 +14,6 @@
     <string name="password">Password (Can be empty)</string>
     <string name="max_participants">Max participants (1 - 256)</string>
     <string name="duration">Duration (minutes)</string>
+    <string name="login">Login with Spotify</string>
+    <string name="logout">Logout</string>
 </resources>

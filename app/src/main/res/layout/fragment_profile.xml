@@ -18,13 +18,13 @@
             android:id="@+id/button_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log In" />
+            android:text="@string/login" />
 
         <Button
             android:id="@+id/button_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log Out" />
+            android:text="@string/logout" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
