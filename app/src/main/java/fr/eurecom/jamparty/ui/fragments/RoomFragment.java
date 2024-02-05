@@ -111,11 +111,11 @@ public class RoomFragment extends Fragment {
                 Log.i("CHILD INDEX", "Added " + suggestion.getName() + " | size = "+room.getQueue().size());
                 if (room.findSuggestion(suggestion) == null) {
                     room.addToQueue(suggestion);
-                    Log.i("TIMER", "Starting timer for "+suggestion.getName()+" | "+suggestion.getAuthor());
-                    SongTimer task = new SongTimer(room, room.findSuggestion(suggestion));
-                    new Timer().schedule(task, 15000);
                 }
                 suggestionAdapter.notifyDataSetChanged();
+                Log.i("TIMER", "Starting timer for "+suggestion.getName()+" | "+suggestion.getAuthor());
+                SongTimer task = new SongTimer(room, room.findSuggestion(suggestion));
+                new Timer().schedule(task, 15000);
                 // need to remove this suggestion from my suggestion queue
                 //if (RoomUserManager.userOwnsRoom(MainActivity.getUser(), room)) {
                 //}
